@@ -1,0 +1,144 @@
+@php
+    $profilePages = [
+        'sejarah' => 'Sejarah',
+        'visi-misi' => 'Visi, Misi, dan Tujuan',
+        'struktur' => 'Struktur Organisasi',
+        'pegawai' => 'Pegawai',
+    ];
+    $programPages = [
+        'unggulan' => 'Program Unggulan',
+        'kurikulum' => 'Kurikulum',
+        'ekstrakurikuler' => 'Ekstrakurikuler',
+    ];
+@endphp
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', $school->name)</title>
+    <meta name="description" content="@yield('description', \Illuminate\Support\Str::limit((string) $school->description, 150))">
+    @if ($school->logoUrl())
+        <link rel="icon" href="{{ $school->logoUrl() }}">
+    @endif
+    @vite('resources/css/site.css')
+    <style>:root { --primary: {{ $school->safeColor() }}; }</style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="wrap bar">
+        <a class="brand" href="{{ route('home', $school) }}">
+            @if ($school->logoUrl())
+                <img src="{{ $school->logoUrl() }}" alt="Logo {{ $school->name }}">
+            @endif
+            <span>{{ $school->name }}</span>
+        </a>
+
+        <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" data-nav-toggle>☰</button>
+
+        <nav class="nav" data-nav>
+            <a href="{{ route('home', $school) }}" @class(['active' => request()->routeIs('home')])>Beranda</a>
+
+            <div class="dropdown">
+                <button type="button" @class(['active' => request()->routeIs('profile')])>Profil</button>
+                <div class="dropdown-menu">
+                    @foreach ($profilePages as $key => $label)
+                        <a href="{{ route('profile', ['school' => $school, 'page' => $key]) }}">{{ $label }}</a>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="dropdown">
+                <button type="button" @class(['active' => request()->routeIs('programs')])>Program Akademik</button>
+                <div class="dropdown-menu">
+                    @foreach ($programPages as $key => $label)
+                        <a href="{{ route('programs', ['school' => $school, 'page' => $key]) }}">{{ $label }}</a>
+                    @endforeach
+                </div>
+            </div>
+
+            <a href="{{ route('news', $school) }}" @class(['active' => request()->routeIs('news*')])>Berita</a>
+            <a href="{{ route('gallery', $school) }}" @class(['active' => request()->routeIs('gallery')])>Galeri</a>
+            <a href="{{ route('contact', $school) }}" @class(['active' => request()->routeIs('contact')])>Kontak</a>
+            <a class="btn btn-sm" href="{{ route('ppdb', $school) }}">Pendaftaran</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    @yield('content')
+</main>
+
+<footer class="site-footer">
+    <div class="wrap footer-grid">
+        <div>
+            <div class="brand brand-footer">
+                @if ($school->logoUrl())
+                    <img src="{{ $school->logoUrl() }}" alt="Logo {{ $school->name }}">
+                @endif
+                <span>{{ $school->name }}</span>
+            </div>
+            @if ($school->tagline)
+                <p class="muted">{{ $school->tagline }}</p>
+            @endif
+        </div>
+
+        <div>
+            <h4>Kontak</h4>
+            <ul class="plain">
+                @if ($school->address)<li>{{ $school->address }}</li>@endif
+                @if ($school->phone)<li>Telp. {{ $school->phone }}</li>@endif
+                @if ($school->email)<li>{{ $school->email }}</li>@endif
+                @if ($school->whatsapp)
+                    <li><a href="https://wa.me/{{ $school->whatsapp }}" rel="noopener" target="_blank">WhatsApp {{ $school->whatsapp }}</a></li>
+                @endif
+            </ul>
+        </div>
+
+        <div>
+            <h4>Navigasi</h4>
+            <ul class="plain">
+                <li><a href="{{ route('profile', ['school' => $school, 'page' => 'sejarah']) }}">Profil</a></li>
+                <li><a href="{{ route('programs', ['school' => $school, 'page' => 'unggulan']) }}">Program Akademik</a></li>
+                <li><a href="{{ route('news', $school) }}">Berita</a></li>
+                <li><a href="{{ route('gallery', $school) }}">Galeri</a></li>
+                <li><a href="{{ route('ppdb', $school) }}">Pendaftaran Siswa</a></li>
+                <li><a href="{{ route('contact', $school) }}">Kontak</a></li>
+                <li><a href="{{ route('portal') }}">Situs {{ $school->foundation_name ?: 'Yayasan' }}</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h4>Media Sosial</h4>
+            <ul class="plain">
+                @foreach (['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'] as $key => $label)
+                    @if ($school->{$key})
+                        <li><a href="{{ $school->{$key} }}" rel="noopener" target="_blank">{{ $label }}</a></li>
+                    @endif
+                @endforeach
+            </ul>
+        </div>
+    </div>
+
+    <div class="copyright">
+        <div class="wrap">
+            © {{ now()->year }} {{ $school->name }}
+            @if ($school->foundation_name) · {{ $school->foundation_name }} @endif
+        </div>
+    </div>
+</footer>
+
+<script>
+    (function () {
+        var btn = document.querySelector('[data-nav-toggle]');
+        var nav = document.querySelector('[data-nav]');
+        if (!btn || !nav) return;
+        btn.addEventListener('click', function () {
+            var open = nav.classList.toggle('open');
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    })();
+</script>
+</body>
+</html>

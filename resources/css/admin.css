@@ -1,0 +1,138 @@
+@import "tailwindcss";
+@source "../views";
+
+/* Tema panel admin. */
+
+@theme {
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+@layer base {
+    :root {
+        --primary: #0f766e;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --danger: #b91c1c;
+    }
+
+    body { font-family: var(--font-sans); color: var(--ink); background: #f3f4f6; line-height: 1.5; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+    h2 { font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 .6rem; }
+    a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+    ol.todo { list-style: decimal; padding-left: 1.4rem; }
+    hr { margin: 1.2rem 0; border-color: var(--line); }
+    code { background: #f3f4f6; padding: 0 .3rem; border-radius: 4px; }
+}
+
+@layer components {
+
+    .muted { color: var(--muted); }
+    .small { @apply text-sm; }
+    small { @apply text-sm; color: var(--muted); }
+    .right { @apply text-right; }
+
+    /* ---------- Kerangka: sidebar + konten ---------- */
+    body.admin { @apply grid min-h-screen; grid-template-columns: 250px 1fr; }
+    .sidebar { @apply sticky top-0 flex flex-col gap-4 p-4 overflow-y-auto; height: 100vh; background: #0f172a; color: #cbd5e1; }
+    .side-brand { @apply text-white font-extrabold text-lg; }
+    .school-switch { @apply rounded-xl; background: #1e293b; padding: .6rem .7rem; }
+    .school-switch label, .school-switch small { @apply block; font-size: .75rem; color: #94a3b8; }
+    .school-switch strong { @apply text-white; }
+    .school-switch select { @apply w-full mt-1 rounded-lg border-0 bg-white text-gray-900; padding: .4rem; }
+    .sidebar nav { @apply flex flex-col; gap: .15rem; }
+    .sidebar nav a { @apply rounded-lg no-underline; padding: .5rem .7rem; font-size: .93rem; color: #cbd5e1; }
+    .sidebar nav a:hover { background: #1e293b; }
+    .sidebar nav a.active { background: var(--primary); color: #fff; }
+    .side-foot { @apply mt-auto text-sm; }
+    .side-foot a { color: #93c5fd; }
+    .side-foot .who { @apply text-white; margin: .6rem 0; }
+    .side-foot small { color: #94a3b8; }
+
+    .content { @apply min-w-0; padding: 1.6rem 2rem; }
+    .page-head { @apply flex flex-wrap items-center justify-between gap-4 mb-4; }
+    .page-head h1 { margin: 0; }
+
+    /* ---------- Tombol & pesan ---------- */
+    .btn { @apply inline-block cursor-pointer rounded-lg border-0 font-semibold no-underline; padding: .55rem 1.1rem; background: var(--primary); color: #fff; font: inherit; font-weight: 600; }
+    .btn:hover { filter: brightness(.92); }
+    .btn-sm { padding: .35rem .8rem; }
+    .link-btn { @apply cursor-pointer underline; background: none; border: 0; padding: 0; font: inherit; color: var(--primary); }
+    .link-btn.danger { color: var(--danger); }
+
+    .flash { @apply mb-4 rounded-lg; padding: .7rem 1rem; }
+    .flash.ok { background: #dcfce7; color: #166534; }
+    .flash.bad { background: #fee2e2; color: #991b1b; }
+    .flash ul { @apply p-0; margin: .3rem 0 0 1.2rem; list-style: disc; }
+
+    /* ---------- Panel & formulir ---------- */
+    .panel { @apply bg-white mb-5; border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.4rem; }
+    fieldset.panel legend { @apply font-bold px-2; }
+    .grid-2 { @apply grid items-start gap-5; grid-template-columns: 1.4fr 1fr; }
+
+    .field { @apply mb-4; }
+    .field > label { @apply block font-semibold mb-1; }
+    .field input[type=text], .field input[type=email], .field input[type=password], .field input[type=url],
+    .field input[type=number], .field input[type=date], .field input[type=datetime-local], .field select, .field textarea {
+        @apply w-full bg-white; max-width: 640px; padding: .55rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit;
+    }
+    .field input[type=color] { @apply bg-white; width: 70px; height: 40px; padding: 2px; border: 1px solid #cbd5e1; border-radius: 8px; }
+    .field input[type=file] { @apply text-sm; }
+    .field small { @apply block mt-1; }
+    .field label.check, label.check { @apply flex items-center gap-2 font-medium; }
+    img.thumb { @apply rounded-lg mb-2; max-height: 90px; border: 1px solid var(--line); }
+
+    /* ---------- Tabel ---------- */
+    .table { @apply w-full bg-white overflow-hidden; border-collapse: collapse; border: 1px solid var(--line); border-radius: 12px; }
+    .table th, .table td { @apply text-left align-top; padding: .65rem .8rem; border-bottom: 1px solid var(--line); font-size: .93rem; }
+    .table th { @apply uppercase; font-size: .8rem; letter-spacing: .04em; background: #f9fafb; color: var(--muted); }
+    .table th.right, .table td.right { @apply text-right; }
+    td.actions { @apply whitespace-nowrap; }
+    td.actions form { @apply inline; margin-left: .6rem; }
+    .msg .actions, .actions { @apply flex items-center gap-3; }
+    td.actions { display: table-cell; }
+
+    .badge { @apply inline-block rounded-full font-bold; padding: .1rem .6rem; font-size: .78rem; background: #e5e7eb; }
+    .badge.s-baru { background: #dbeafe; color: #1e40af; }
+    .badge.s-diproses { background: #fef3c7; color: #92400e; }
+    .badge.s-diterima { background: #dcfce7; color: #166534; }
+    .badge.s-cadangan { background: #ede9fe; color: #5b21b6; }
+    .badge.s-ditolak { background: #fee2e2; color: #991b1b; }
+
+    .filter-bar { @apply flex flex-wrap gap-2 mb-4; }
+    .filter-bar input, .filter-bar select { @apply bg-white; padding: .45rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
+
+    /* ---------- Dashboard & detail ---------- */
+    .stat-cards { @apply grid gap-4; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); margin-bottom: 1.4rem; }
+    .stat-card { @apply bg-white no-underline p-4; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); }
+    .stat-card .n { @apply font-extrabold; font-size: 2rem; color: var(--primary); }
+
+    .dl { @apply grid mb-4; grid-template-columns: 150px 1fr; gap: .35rem 1rem; }
+    .dl dt { color: var(--muted); }
+    .dl dd { @apply m-0; }
+    ul.plain { @apply list-none p-0 m-0; }
+    ul.plain li { margin-bottom: .4rem; }
+
+    .msg.unread { border-left: 4px solid var(--primary); }
+    .msg-head { @apply flex justify-between gap-4; }
+
+    .pager { @apply flex justify-center gap-5 mt-5; }
+    .pager .disabled { color: #9ca3af; }
+
+    /* ---------- Halaman masuk ---------- */
+    body.login-page { @apply grid place-items-center min-h-screen p-4; }
+    .login-box { @apply bg-white; width: min(380px, 100%); padding: 2rem; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .06); }
+    .login-box h1 { margin-bottom: .2rem; }
+    .login-box label { @apply block font-semibold; margin-top: 1rem; }
+    .login-box label.check { margin-top: .8rem; }
+    .login-box input[type=email], .login-box input[type=password] { @apply w-full bg-white mt-1; padding: .6rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
+    .login-box .btn { @apply w-full; margin-top: 1.2rem; padding: .7rem; }
+}
+
+@media (max-width: 860px) {
+    body.admin { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .content { padding: 1rem; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .table { display: block; overflow-x: auto; }
+}

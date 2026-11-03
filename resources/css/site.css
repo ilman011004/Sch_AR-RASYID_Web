@@ -1,0 +1,224 @@
+@import "tailwindcss";
+
+/* Tailwind otomatis memindai file Blade; baris ini hanya memastikan. */
+@source "../views";
+
+/*
+ | Tema situs publik (jenjang dan yayasan).
+ | Warna utama tiap sekolah diatur lewat variabel --primary
+ | (disuntikkan per sekolah di layout), jadi satu stylesheet dipakai semua.
+ */
+
+@theme {
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --color-ink: #1f2937;
+    --color-line: #e5e7eb;
+}
+
+@layer base {
+    :root {
+        --primary: #0f766e;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --bg-alt: #f6f8f8;
+        --radius: 14px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); color: var(--ink); line-height: 1.65; background: #fff; }
+
+    h1, h2, h3, h4 { font-weight: 700; line-height: 1.25; margin-bottom: .6rem; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+    h2 { font-size: clamp(1.4rem, 3vw, 1.9rem); }
+    h3 { font-size: 1.15rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+    fieldset { min-width: 0; }
+}
+
+@layer components {
+
+    /* ---------- Tata letak umum ---------- */
+    .wrap { @apply mx-auto; width: min(1120px, 100% - 2rem); }
+    .narrow { @apply mx-auto; width: min(780px, 100% - 2rem); }
+    .center { @apply text-center; }
+    .muted { color: var(--muted); }
+    .small { @apply text-sm; }
+    .lead { font-size: 1.12rem; }
+
+    .section { @apply py-12; }
+    .section.alt { background: var(--bg-alt); }
+    .section-head { @apply flex items-baseline justify-between gap-4 mb-5; }
+    .two-col { @apply grid gap-10; grid-template-columns: 1fr 1fr; }
+    .page-title { padding: 2.2rem 0; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--primary) 10%, #fff); }
+    .page-title h1 { margin: 0; }
+    .crumb { @apply text-sm mb-1; color: var(--muted); }
+    .crumb a { color: var(--muted); }
+
+    /* ---------- Header & navigasi ---------- */
+    .site-header { @apply sticky top-0 z-10 bg-white; border-bottom: 1px solid var(--line); }
+    .bar { @apply flex items-center justify-between gap-4; min-height: 64px; }
+    .brand { @apply flex items-center gap-2 font-bold no-underline; color: var(--ink); }
+    .brand img { @apply w-auto; height: 38px; }
+    .nav { @apply flex items-center gap-4; }
+    .nav a { @apply font-medium no-underline; color: var(--ink); }
+    .nav a.active, .nav a:hover { color: var(--primary); }
+    .nav a.btn { color: #fff; }
+    .nav-toggle { @apply hidden cursor-pointer text-xl; background: none; border: 1px solid var(--line); border-radius: 8px; padding: .2rem .6rem; }
+
+    /* ---------- Dropdown menu ---------- */
+    .nav .dropdown { position: relative; padding: 1.15rem 0; }
+    .nav .dropdown > button { font: inherit; font-weight: 500; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
+    .nav .dropdown > button::after { content: " ▾"; font-size: .8em; }
+    .nav .dropdown > button:hover, .nav .dropdown > button.active { color: var(--primary); }
+    .dropdown-menu {
+        display: none; position: absolute; left: 0; top: 100%; z-index: 20; min-width: 230px; padding: .4rem;
+        background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 28px rgba(0, 0, 0, .1);
+    }
+    .nav .dropdown:hover .dropdown-menu, .nav .dropdown:focus-within .dropdown-menu { display: block; }
+    .dropdown-menu a, .dropdown-menu .soon { display: block; padding: .45rem .7rem; border-radius: 8px; white-space: nowrap; }
+    .dropdown-menu a:hover { background: var(--bg-alt); }
+    .dropdown-menu .soon { color: var(--muted); font-size: .93rem; }
+
+    /* ---------- Tombol ---------- */
+    .btn {
+        @apply inline-block cursor-pointer rounded-full font-semibold no-underline px-5 py-2.5;
+        background: var(--primary); color: #fff; border: 2px solid var(--primary);
+    }
+    .btn:hover { filter: brightness(.92); }
+    .btn-outline { background: transparent; color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: #fff; filter: none; }
+    .btn-sm { @apply px-4 py-1; }
+    .btns { @apply flex flex-wrap gap-3 mt-5; }
+
+    /* ---------- Hero ---------- */
+    .hero { padding: 3.5rem 0; background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 12%, #fff), #fff 70%); }
+    .hero-grid { @apply grid items-center gap-10; grid-template-columns: 1.2fr 1fr; }
+    .eyebrow { @apply uppercase font-bold text-sm mb-1; letter-spacing: .12em; color: var(--primary); }
+    .head-card { @apply m-0 bg-white text-center p-5; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0, 0, 0, .06); }
+    .head-card img, .avatar { @apply mx-auto rounded-full object-cover mb-3; width: 140px; height: 140px; }
+    .avatar { @apply grid place-items-center font-bold; background: color-mix(in srgb, var(--primary) 18%, #fff); color: var(--primary); font-size: 3rem; }
+    .head-card blockquote { @apply italic mb-3; margin-left: 0; margin-right: 0; color: #374151; }
+    .head-card strong, .head-card span { @apply block; }
+    .head-card span { color: var(--muted); }
+
+    /* ---------- Daftar & kartu ---------- */
+    ul.plain { @apply list-none p-0 m-0; }
+    ul.plain li { @apply mb-2; }
+    ul.check { @apply list-none p-0 mb-4; }
+    ul.check li { @apply relative mb-2; padding-left: 1.7rem; }
+    ul.check li::before { content: "✓"; @apply absolute left-0 font-bold; color: var(--primary); }
+
+    .cards { @apply grid gap-5 mt-5; }
+    .cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .card { @apply bg-white overflow-hidden p-5; border: 1px solid var(--line); border-radius: var(--radius); }
+    .card:has(> .body) { padding: 0; }
+    .card .body { padding: 1.1rem 1.2rem 1.3rem; }
+    .card img.cover, .post-card img { @apply w-full object-cover; aspect-ratio: 16 / 10; }
+    .card h3 a { @apply no-underline; color: inherit; }
+    .card h3 a:hover { color: var(--primary); }
+    .icon { font-size: 2.2rem; margin-bottom: .4rem; }
+    .icon.big { font-size: 3.5rem; }
+    .portal-card { @apply no-underline; color: inherit; border-top: 5px solid var(--primary); transition: transform .15s, box-shadow .15s; }
+    .portal-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0, 0, 0, .08); }
+    .logo-lg { @apply mx-auto mb-2; height: 72px; }
+
+    .tag { @apply inline-block rounded-full font-bold px-3; font-size: .75rem; padding-top: .15rem; padding-bottom: .15rem; background: color-mix(in srgb, var(--primary) 14%, #fff); color: var(--primary); }
+    .tag-warn { background: #fef3c7; color: #92400e; }
+    .tag-ok { background: #dcfce7; color: #166534; }
+
+    /* ---------- Galeri & filter ---------- */
+    .photo-grid { @apply grid gap-4; grid-template-columns: repeat(3, 1fr); }
+    .photo-grid figure { @apply m-0 bg-white overflow-hidden; border: 1px solid var(--line); border-radius: var(--radius); }
+    .photo-grid img { @apply w-full object-cover; aspect-ratio: 4 / 3; }
+    .photo-grid figcaption { @apply text-sm; padding: .6rem .9rem; }
+    .photo-grid figcaption small { @apply block; color: var(--muted); }
+
+    .filters { @apply flex flex-wrap gap-2 mb-5; }
+    .filters a { @apply rounded-full no-underline px-4 py-1; border: 1px solid var(--line); color: var(--ink); }
+    .filters a.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    .pager { @apply flex items-center justify-center gap-5 mt-8; }
+    .pager .disabled { color: #9ca3af; }
+
+    /* ---------- Statistik & FAQ ---------- */
+    .stats { background: var(--primary); color: #fff; }
+    .stat-grid { @apply grid gap-4 text-center; grid-template-columns: repeat(3, 1fr); }
+    .stat .num { @apply font-extrabold; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; }
+
+    .faq { @apply bg-white mb-3; border: 1px solid var(--line); border-radius: 10px; padding: .85rem 1.1rem; }
+    .faq summary { @apply cursor-pointer font-semibold; }
+    .faq p { margin: .7rem 0 0; }
+
+    /* ---------- Profil, struktur, pegawai ---------- */
+    .prose { font-size: 1.04rem; }
+    .article-img { @apply w-full; border-radius: var(--radius); margin: 1rem 0 1.4rem; }
+    .structure-img { @apply block mx-auto; max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+
+    .org-top { @apply flex justify-center mb-10; }
+    .org-top .person { width: min(260px, 100%); }
+    .people { @apply grid gap-6; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin: 1.2rem 0 2.6rem; }
+
+    /* Kartu orang: foto persegi, nama, jabatan */
+    .person { @apply text-center bg-white; padding: 1.1rem 1.1rem 1.3rem; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 6px 22px rgba(0, 0, 0, .05); }
+    .person img, .person .avatar {
+        @apply block w-full object-cover; height: auto; aspect-ratio: 1 / 1; border-radius: 14px; margin: 0 0 1rem;
+    }
+    .person .avatar { @apply grid place-items-center; font-size: 4rem; }
+    .person strong { @apply block; font-size: 1.1rem; line-height: 1.35; margin-bottom: .2rem; }
+    .person span { @apply block; }
+
+    /* ---------- Formulir ---------- */
+    .form label { @apply block mb-4 font-semibold; }
+    .form input[type=text], .form input[type=email], .form input[type=date], .form input[type=file], .form select, .form textarea {
+        @apply block w-full bg-white font-normal;
+        margin-top: .3rem; padding: .6rem .8rem; border: 1px solid #cbd5e1; border-radius: 10px; font: inherit;
+    }
+    .form input:focus, .form select:focus, .form textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+    .form fieldset { @apply bg-white mb-6; border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem .3rem; }
+    .form legend { @apply font-bold px-2; }
+    .form .row { @apply grid gap-4; grid-template-columns: 1fr 1fr; }
+    .err { @apply block text-sm font-normal mt-1; color: #b91c1c; }
+    .hp { @apply absolute overflow-hidden; left: -9999px; width: 1px; height: 1px; }
+    .alert { @apply mb-4; padding: .8rem 1rem; border-radius: 10px; }
+    .alert.ok { background: #dcfce7; color: #166534; }
+    .alert.err-box { background: #fee2e2; color: #991b1b; }
+    .map { @apply w-full border-0 mt-4; height: 300px; border-radius: var(--radius); }
+    .contact-list li { margin-bottom: 1rem; }
+    .reg-box { padding: 1.2rem; margin: 1.4rem 0; border: 2px dashed var(--primary); border-radius: var(--radius); background: color-mix(in srgb, var(--primary) 10%, #fff); }
+    .reg-number { @apply font-extrabold; font-size: clamp(1.4rem, 5vw, 2.2rem); letter-spacing: .04em; color: var(--primary); }
+    .result { @apply mt-6; padding: 1.2rem 1.4rem; border-radius: var(--radius); background: var(--bg-alt); }
+
+    /* ---------- Footer ---------- */
+    .site-footer { background: #111827; color: #d1d5db; }
+    .site-footer a { color: #e5e7eb; }
+    .site-footer .muted { color: #9ca3af; }
+    .site-footer h4 { @apply text-white; }
+    .footer-grid { @apply grid gap-8; grid-template-columns: 1.4fr 1.2fr 1fr 1fr; padding: 2.5rem 0; }
+    .brand-footer { @apply text-white mb-2; }
+    .copyright { @apply text-sm; border-top: 1px solid #1f2937; padding: 1rem 0; color: #9ca3af; }
+}
+
+/* ---------- Responsif ---------- */
+@media (max-width: 900px) {
+    .hero-grid, .two-col { grid-template-columns: 1fr; }
+    .cols-3, .cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .photo-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+    .nav-toggle { display: block; }
+    .nav {
+        display: none; position: absolute; left: 0; right: 0; top: 100%; flex-direction: column; align-items: flex-start;
+        background: #fff; border-bottom: 1px solid var(--line); padding: 1rem; gap: .8rem;
+    }
+    .nav.open { display: flex; }
+    .nav .dropdown { padding: 0; }
+    .nav .dropdown-menu { display: block; position: static; border: 0; box-shadow: none; padding: .2rem 0 0 .8rem; }
+}
+@media (max-width: 560px) {
+    .cols-3, .cols-4, .photo-grid, .stat-grid, .footer-grid, .form .row { grid-template-columns: 1fr; }
+    .people { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+}
