@@ -28,67 +28,67 @@
 @layer components {
 
     .muted { color: var(--muted); }
-    .small { @apply text-sm; }
-    small { @apply text-sm; color: var(--muted); }
-    .right { @apply text-right; }
+    .small { font-size: .875rem; line-height: 1.25rem; }
+    small { font-size: .875rem; line-height: 1.25rem; color: var(--muted); }
+    .right { text-align: right; }
 
     /* ---------- Kerangka: sidebar + konten ---------- */
-    body.admin { @apply grid min-h-screen; grid-template-columns: 250px 1fr; }
-    .sidebar { @apply sticky top-0 flex flex-col gap-4 p-4 overflow-y-auto; height: 100vh; background: #0f172a; color: #cbd5e1; }
-    .side-brand { @apply text-white font-extrabold text-lg; }
-    .school-switch { @apply rounded-xl; background: #1e293b; padding: .6rem .7rem; }
-    .school-switch label, .school-switch small { @apply block; font-size: .75rem; color: #94a3b8; }
-    .school-switch strong { @apply text-white; }
-    .school-switch select { @apply w-full mt-1 rounded-lg border-0 bg-white text-gray-900; padding: .4rem; }
-    .sidebar nav { @apply flex flex-col; gap: .15rem; }
-    .sidebar nav a { @apply rounded-lg no-underline; padding: .5rem .7rem; font-size: .93rem; color: #cbd5e1; }
+    body.admin { display: grid; min-height: 100vh; grid-template-columns: 250px 1fr; }
+    .sidebar { position: sticky; top: 0; display: flex; flex-direction: column; gap: 1rem; padding: 1rem; overflow-y: auto; height: 100vh; background: #0f172a; color: #cbd5e1; }
+    .side-brand { color: #fff; font-weight: 800; font-size: 1.125rem; line-height: 1.75rem; }
+    .school-switch { border-radius: .75rem; background: #1e293b; padding: .6rem .7rem; }
+    .school-switch label, .school-switch small { display: block; font-size: .75rem; color: #94a3b8; }
+    .school-switch strong { color: #fff; }
+    .school-switch select { width: 100%; margin-top: .25rem; border-radius: .5rem; border: 0; background: #fff; color: #111827; padding: .4rem; }
+    .sidebar nav { display: flex; flex-direction: column; gap: .15rem; }
+    .sidebar nav a { border-radius: .5rem; text-decoration: none; padding: .5rem .7rem; font-size: .93rem; color: #cbd5e1; }
     .sidebar nav a:hover { background: #1e293b; }
     .sidebar nav a.active { background: var(--primary); color: #fff; }
-    .side-foot { @apply mt-auto text-sm; }
+    .side-foot { margin-top: auto; font-size: .875rem; line-height: 1.25rem; }
     .side-foot a { color: #93c5fd; }
-    .side-foot .who { @apply text-white; margin: .6rem 0; }
+    .side-foot .who { color: #fff; margin: .6rem 0; }
     .side-foot small { color: #94a3b8; }
 
-    .content { @apply min-w-0; padding: 1.6rem 2rem; }
-    .page-head { @apply flex flex-wrap items-center justify-between gap-4 mb-4; }
+    .content { min-width: 0; padding: 1.6rem 2rem; }
+    .page-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
     .page-head h1 { margin: 0; }
 
     /* ---------- Tombol & pesan ---------- */
-    .btn { @apply inline-block cursor-pointer rounded-lg border-0 font-semibold no-underline; padding: .55rem 1.1rem; background: var(--primary); color: #fff; font: inherit; font-weight: 600; }
+    .btn { display: inline-block; cursor: pointer; border-radius: .5rem; border: 0; text-decoration: none; padding: .55rem 1.1rem; background: var(--primary); color: #fff; font: inherit; font-weight: 600; }
     .btn:hover { filter: brightness(.92); }
     .btn-sm { padding: .35rem .8rem; }
-    .link-btn { @apply cursor-pointer underline; background: none; border: 0; padding: 0; font: inherit; color: var(--primary); }
+    .link-btn { cursor: pointer; text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; color: var(--primary); }
     .link-btn.danger { color: var(--danger); }
 
-    .flash { @apply mb-4 rounded-lg; padding: .7rem 1rem; }
+    .flash { margin-bottom: 1rem; border-radius: .5rem; padding: .7rem 1rem; }
     .flash.ok { background: #dcfce7; color: #166534; }
     .flash.bad { background: #fee2e2; color: #991b1b; }
-    .flash ul { @apply p-0; margin: .3rem 0 0 1.2rem; list-style: disc; }
+    .flash ul { padding: 0; margin: .3rem 0 0 1.2rem; list-style: disc; }
 
     /* ---------- Panel & formulir ---------- */
-    .panel { @apply bg-white mb-5; border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.4rem; }
-    fieldset.panel legend { @apply font-bold px-2; }
-    .grid-2 { @apply grid items-start gap-5; grid-template-columns: 1.4fr 1fr; }
+    .panel { background: #fff; margin-bottom: 1.25rem; border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.4rem; }
+    fieldset.panel legend { font-weight: 700; padding: 0 .5rem; }
+    .grid-2 { display: grid; align-items: start; gap: 1.25rem; grid-template-columns: 1.4fr 1fr; }
 
-    .field { @apply mb-4; }
+    .field { margin-bottom: 1rem; }
     .field[hidden] { display: none; }
-    .field > label { @apply block font-semibold mb-1; }
+    .field > label { display: block; font-weight: 600; margin-bottom: .25rem; }
     .field input[type=text], .field input[type=email], .field input[type=password], .field input[type=url],
     .field input[type=number], .field input[type=date], .field input[type=datetime-local], .field select, .field textarea {
-        @apply w-full bg-white; max-width: 640px; padding: .55rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit;
+        width: 100%; background: #fff; max-width: 640px; padding: .55rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit;
     }
-    .field input[type=color] { @apply bg-white; width: 70px; height: 40px; padding: 2px; border: 1px solid #cbd5e1; border-radius: 8px; }
-    .field small { @apply block mt-1; }
-    .field label.check, label.check { @apply flex items-center gap-2 font-medium; }
-    img.thumb { @apply rounded-lg mb-2; max-height: 90px; border: 1px solid var(--line); }
+    .field input[type=color] { background: #fff; width: 70px; height: 40px; padding: 2px; border: 1px solid #cbd5e1; border-radius: 8px; }
+    .field small { display: block; margin-top: .25rem; }
+    .field label.check, label.check { display: flex; align-items: center; gap: .5rem; font-weight: 500; }
+    img.thumb { border-radius: .5rem; margin-bottom: .5rem; max-height: 90px; border: 1px solid var(--line); }
     img.thumb[hidden] { display: none; }
 
     /* ---------- Tombol upload ---------- */
     .upload img.thumb { max-height: 160px; display: block; }
-    .upload-row { @apply flex flex-wrap items-center gap-3; }
+    .upload-row { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
     .upload-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
     .upload-btn {
-        @apply inline-flex items-center gap-2 cursor-pointer font-semibold text-white;
+        display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; font-weight: 600; color: #fff;
         padding: .7rem 1.4rem; border-radius: 10px; background: var(--primary);
         box-shadow: 0 2px 6px rgba(15, 118, 110, .25); transition: filter .15s, transform .15s;
     }
@@ -97,50 +97,50 @@
     .upload-name { font-size: .9rem; color: var(--muted); word-break: break-all; }
 
     /* ---------- Tabel ---------- */
-    .table { @apply w-full bg-white overflow-hidden; border-collapse: collapse; border: 1px solid var(--line); border-radius: 12px; }
-    .table th, .table td { @apply text-left align-top; padding: .65rem .8rem; border-bottom: 1px solid var(--line); font-size: .93rem; }
-    .table th { @apply uppercase; font-size: .8rem; letter-spacing: .04em; background: #f9fafb; color: var(--muted); }
-    .table th.right, .table td.right { @apply text-right; }
-    td.actions { @apply whitespace-nowrap; }
-    td.actions form { @apply inline; margin-left: .6rem; }
-    .msg .actions, .actions { @apply flex items-center gap-3; }
+    .table { width: 100%; background: #fff; overflow: hidden; border-collapse: collapse; border: 1px solid var(--line); border-radius: 12px; }
+    .table th, .table td { text-align: left; vertical-align: top; padding: .65rem .8rem; border-bottom: 1px solid var(--line); font-size: .93rem; }
+    .table th { text-transform: uppercase; font-size: .8rem; letter-spacing: .04em; background: #f9fafb; color: var(--muted); }
+    .table th.right, .table td.right { text-align: right; }
+    td.actions { white-space: nowrap; }
+    td.actions form { display: inline; margin-left: .6rem; }
+    .msg .actions, .actions { display: flex; align-items: center; gap: .75rem; }
     td.actions { display: table-cell; }
 
-    .badge { @apply inline-block rounded-full font-bold; padding: .1rem .6rem; font-size: .78rem; background: #e5e7eb; }
+    .badge { display: inline-block; border-radius: 9999px; font-weight: 700; padding: .1rem .6rem; font-size: .78rem; background: #e5e7eb; }
     .badge.s-baru { background: #dbeafe; color: #1e40af; }
     .badge.s-diproses { background: #fef3c7; color: #92400e; }
     .badge.s-diterima { background: #dcfce7; color: #166534; }
     .badge.s-cadangan { background: #ede9fe; color: #5b21b6; }
     .badge.s-ditolak { background: #fee2e2; color: #991b1b; }
 
-    .filter-bar { @apply flex flex-wrap gap-2 mb-4; }
-    .filter-bar input, .filter-bar select { @apply bg-white; padding: .45rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+    .filter-bar input, .filter-bar select { background: #fff; padding: .45rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
 
     /* ---------- Dashboard & detail ---------- */
-    .stat-cards { @apply grid gap-4; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); margin-bottom: 1.4rem; }
-    .stat-card { @apply bg-white no-underline p-4; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); }
-    .stat-card .n { @apply font-extrabold; font-size: 2rem; color: var(--primary); }
+    .stat-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); margin-bottom: 1.4rem; }
+    .stat-card { background: #fff; text-decoration: none; padding: 1rem; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); }
+    .stat-card .n { font-weight: 800; font-size: 2rem; color: var(--primary); }
 
-    .dl { @apply grid mb-4; grid-template-columns: 150px 1fr; gap: .35rem 1rem; }
+    .dl { display: grid; margin-bottom: 1rem; grid-template-columns: 150px 1fr; gap: .35rem 1rem; }
     .dl dt { color: var(--muted); }
-    .dl dd { @apply m-0; }
-    ul.plain { @apply list-none p-0 m-0; }
+    .dl dd { margin: 0; }
+    ul.plain { list-style: none; padding: 0; margin: 0; }
     ul.plain li { margin-bottom: .4rem; }
 
     .msg.unread { border-left: 4px solid var(--primary); }
-    .msg-head { @apply flex justify-between gap-4; }
+    .msg-head { display: flex; justify-content: space-between; gap: 1rem; }
 
-    .pager { @apply flex justify-center gap-5 mt-5; }
+    .pager { display: flex; justify-content: center; gap: 1.25rem; margin-top: 1.25rem; }
     .pager .disabled { color: #9ca3af; }
 
     /* ---------- Halaman masuk ---------- */
-    body.login-page { @apply grid place-items-center min-h-screen p-4; }
-    .login-box { @apply bg-white; width: min(380px, 100%); padding: 2rem; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .06); }
+    body.login-page { display: grid; place-items: center; min-height: 100vh; padding: 1rem; }
+    .login-box { background: #fff; width: min(380px, 100%); padding: 2rem; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .06); }
     .login-box h1 { margin-bottom: .2rem; }
-    .login-box label { @apply block font-semibold; margin-top: 1rem; }
+    .login-box label { display: block; font-weight: 600; margin-top: 1rem; }
     .login-box label.check { margin-top: .8rem; }
-    .login-box input[type=email], .login-box input[type=password] { @apply w-full bg-white mt-1; padding: .6rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
-    .login-box .btn { @apply w-full; margin-top: 1.2rem; padding: .7rem; }
+    .login-box input[type=email], .login-box input[type=password] { width: 100%; background: #fff; margin-top: .25rem; padding: .6rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
+    .login-box .btn { width: 100%; margin-top: 1.2rem; padding: .7rem; }
 }
 
 @media (max-width: 860px) {

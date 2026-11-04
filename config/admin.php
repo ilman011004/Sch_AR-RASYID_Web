@@ -213,6 +213,8 @@ return [
             ['name' => 'ppdb_year', 'label' => 'Tahun ajaran (tahun mulai)', 'type' => 'number', 'rules' => 'nullable|integer|min:2020|max:2100'],
             ['name' => 'ppdb_start', 'label' => 'Tanggal buka', 'type' => 'date', 'rules' => 'nullable|date'],
             ['name' => 'ppdb_end', 'label' => 'Tanggal tutup', 'type' => 'date', 'rules' => 'nullable|date|after_or_equal:ppdb_start'],
+            ['name' => 'ppdb_poster', 'label' => 'Poster PPDB', 'type' => 'image', 'button' => 'Pilih Poster',
+                'help' => 'Poster/brosur pendaftaran yang tampil di halaman PPDB. Format JPG, PNG, atau WebP, maks. 2 MB.'],
             ['name' => 'ppdb_info', 'label' => 'Informasi pendaftaran', 'type' => 'textarea', 'rows' => 12, 'rules' => 'nullable|string|max:10000',
                 'help' => 'Syarat, alur, jadwal, biaya. Tulis satu poin per baris; baris diawali "## " menjadi judul bagian.'],
         ],

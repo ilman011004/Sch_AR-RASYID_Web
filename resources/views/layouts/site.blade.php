@@ -87,6 +87,18 @@
             <a href="{{ route('gallery', $school) }}" @class(['active' => request()->routeIs('gallery')])>Galeri</a>
             <a href="{{ route('contact', $school) }}" @class(['active' => request()->routeIs('contact')])>Kontak</a>
             <a class="btn btn-sm" href="{{ route('ppdb', $school) }}">Pendaftaran</a>
+
+            @auth
+                @if (auth()->user()->isParent())
+                    <form method="post" action="{{ route('ppdb.logout', $school) }}" class="nav-user">
+                        @csrf
+                        <span>{{ \Illuminate\Support\Str::limit(auth()->user()->name, 18) }}</span>
+                        <button type="submit">Keluar</button>
+                    </form>
+                @endif
+            @else
+                <a class="btn btn-sm btn-outline" href="{{ route('ppdb.login', $school) }}">Masuk</a>
+            @endauth
         </nav>
     </div>
 </header>

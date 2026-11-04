@@ -9,9 +9,20 @@ use Illuminate\Support\Facades\DB;
 
 class PpdbController extends Controller
 {
+    /** Halaman informasi + poster (publik). */
     public function index(School $school)
     {
         return view('site.ppdb', ['school' => $school, 'open' => $school->ppdbIsOpen()]);
+    }
+
+    /** Halaman formulir (wajib login). */
+    public function form(School $school)
+    {
+        if (! $school->ppdbIsOpen()) {
+            return redirect()->route('ppdb', $school)->with('error', 'Pendaftaran sedang ditutup.');
+        }
+
+        return view('site.ppdb-form', ['school' => $school]);
     }
 
     public function store(Request $request, School $school)
@@ -59,7 +70,9 @@ class PpdbController extends Controller
             }
         }
 
-        $registration = DB::transaction(function () use ($school, $data) {
+        $userId = $request->user()->id;
+
+        $registration = DB::transaction(function () use ($school, $data, $userId) {
             // Kunci baris sekolah agar dua pendaftar bersamaan tidak mendapat nomor yang sama.
             School::whereKey($school->id)->lockForUpdate()->first();
 
@@ -68,6 +81,7 @@ class PpdbController extends Controller
 
             return Registration::create($data + [
                 'school_id' => $school->id,
+                'user_id' => $userId,
                 'year' => $year,
                 'seq' => $seq,
                 'reg_number' => sprintf('PPDB-%d-%s-%04d', $year, strtoupper($school->slug), $seq),
@@ -92,9 +106,13 @@ class PpdbController extends Controller
         return view('site.ppdb-success', ['school' => $school, 'reg' => $reg]);
     }
 
-    public function status(School $school)
+    public function status(Request $request, School $school)
     {
-        return view('site.ppdb-status', ['school' => $school, 'result' => null]);
+        return view('site.ppdb-status', [
+            'school' => $school,
+            'result' => null,
+            'mine' => $this->myRegistrations($request, $school),
+        ]);
     }
 
     public function check(Request $request, School $school)
@@ -114,6 +132,22 @@ class PpdbController extends Controller
             'school' => $school,
             'result' => $result,
             'searched' => true,
+            'mine' => $this->myRegistrations($request, $school),
         ]);
+    }
+
+    /** Pendaftaran milik akun orang tua yang sedang login (kosong bila tamu/admin). */
+    private function myRegistrations(Request $request, School $school)
+    {
+        $user = $request->user();
+
+        if (! $user || ! $user->isParent()) {
+            return collect();
+        }
+
+        return Registration::where('school_id', $school->id)
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
     }
 }

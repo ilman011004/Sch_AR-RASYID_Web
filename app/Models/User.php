@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -35,8 +34,18 @@ class User extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    /** Akun pendaftar PPDB (orang tua / wali). Bukan akun panel admin. */
+    public function isParent(): bool
+    {
+        return $this->role === 'parent';
+    }
+
     public function roleLabel(): string
     {
+        if ($this->isParent()) {
+            return 'Orang tua / wali';
+        }
+
         return config('school.roles.'.$this->role, $this->role);
     }
 }

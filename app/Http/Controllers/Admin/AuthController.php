@@ -11,7 +11,9 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
+            return Auth::user()->isParent()
+                ? redirect('/')
+                : redirect()->route('admin.dashboard');
         }
 
         return view('auth.login');
@@ -28,6 +30,16 @@ class AuthController extends Controller
         if (! Auth::attempt($credentials + ['is_active' => true], $request->boolean('remember'))) {
             return back()->withInput($request->only('email'))
                 ->withErrors(['email' => 'Email atau kata sandi salah.']);
+        }
+
+        // Akun pendaftar (orang tua) bukan akun admin.
+        if ($request->user()->isParent()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withInput($request->only('email'))
+                ->withErrors(['email' => 'Akun ini bukan akun admin.']);
         }
 
         $request->session()->regenerate();

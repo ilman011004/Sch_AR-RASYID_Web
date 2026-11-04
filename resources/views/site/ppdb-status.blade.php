@@ -9,6 +9,22 @@
 
 <section class="section">
     <div class="wrap narrow">
+
+        @if (isset($mine) && $mine->isNotEmpty())
+            <h2>Pendaftaran saya</h2>
+            @foreach ($mine as $r)
+                <div class="result">
+                    <h3>{{ $r->student_name }}</h3>
+                    <p class="muted small">{{ $r->reg_number }}</p>
+                    <p>Status: <span class="tag {{ $r->status === 'diterima' ? 'tag-ok' : ($r->status === 'ditolak' ? 'tag-warn' : '') }}">{{ $r->statusLabel() }}</span></p>
+                    @if ($r->admin_note)
+                        <p><strong>Catatan sekolah:</strong><br>{{ $r->admin_note }}</p>
+                    @endif
+                </div>
+            @endforeach
+            <hr>
+        @endif
+
         <form method="post" action="{{ route('ppdb.check', $school) }}" class="form">
             @csrf
             <label>Nomor pendaftaran

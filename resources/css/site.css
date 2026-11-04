@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @source "../views";
+@import "tailwindcss";
+@import "./ppdb-auth.css";
+@source "../views";
 
 @theme {
     --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -94,7 +97,16 @@
     .nav a.active, .nav .dropdown > button.active { color: var(--primary); background: color-mix(in srgb, var(--primary) 11%, #fff); }
     .nav a.btn { background: var(--primary); color: #fff; margin-left: .5rem; padding: .55rem 1.2rem; border-radius: 10px; }
     .nav a.btn:hover { background: var(--primary); color: #fff; filter: brightness(.92); }
+    .nav a.btn.btn-outline { background: transparent; color: var(--primary); margin-left: .4rem; padding: .5rem 1.1rem; }
+    .nav a.btn.btn-outline:hover { background: var(--primary); color: #fff; filter: none; }
     .nav-toggle { display: none; cursor: pointer; font-size: 1.3rem; background: none; border: 1px solid var(--line); border-radius: 8px; padding: .2rem .65rem; color: var(--ink); }
+
+    .nav-user { display: inline-flex; align-items: center; gap: .6rem; margin: 0 0 0 .5rem; font-size: .88rem; font-weight: 600; color: var(--ink); }
+    .nav-user button {
+        font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer; background: none; color: var(--primary);
+        border: 1px solid var(--primary); border-radius: 8px; padding: .3rem .8rem;
+    }
+    .nav-user button:hover { background: var(--primary); color: #fff; }
 
     .nav .dropdown { position: relative; padding: 1.15rem 0; }
     .nav .dropdown > button::after { content: ""; display: inline-block; width: .42em; height: .42em; margin-left: .45em; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-.15em) rotate(45deg); }
@@ -170,13 +182,13 @@
     .quick small { color: var(--muted); font-size: .8rem; }
 
     /* ---------- Sambutan ---------- */
-    .welcome { display: grid; align-items: center; gap: 4rem; grid-template-columns: 320px 1fr; }
+    .welcome { display: grid; align-items: center; gap: 4rem; grid-template-columns: 330px 1fr; }
     .welcome-photo { position: relative; }
     .welcome-photo::before { content: ""; position: absolute; inset: 14px -14px -14px 14px; border-radius: 22px; background: color-mix(in srgb, var(--primary) 18%, #fff); }
     .welcome-photo img, .welcome-photo .avatar {
         position: relative; display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover;
         border-radius: 22px; margin: 0; border: 0; box-shadow: var(--shadow-md);
-    }
+    }l
     .welcome-photo .avatar { display: grid; font-size: 6rem; }
     .welcome-body .msg { font-size: 1.08rem; margin-bottom: 1.4rem; }
     .welcome-sign { padding-left: 1rem; border-left: 4px solid var(--primary); }
@@ -313,7 +325,7 @@
 
     /* ---------- Formulir ---------- */
     .form label { display: block; margin-bottom: 1.1rem; font-weight: 600; color: var(--ink); }
-    .form input[type=text], .form input[type=email], .form input[type=date], .form input[type=file], .form select, .form textarea {
+    .form input[type=text], .form input[type=email], .form input[type=password], .form input[type=date], .form input[type=file], .form select, .form textarea {
         display: block; width: 100%; background: #fff; font-weight: 400; margin-top: .35rem; padding: .7rem .9rem;
         border: 1px solid #cbd5e1; border-radius: 10px; font: inherit; color: var(--text);
     }
@@ -330,6 +342,29 @@
     .reg-box { padding: 1.3rem; margin: 1.5rem 0; border: 2px dashed var(--primary); border-radius: var(--radius); background: color-mix(in srgb, var(--primary) 9%, #fff); }
     .reg-number { font-weight: 800; font-size: clamp(1.4rem, 5vw, 2.2rem); letter-spacing: .04em; color: var(--primary); }
     .result { margin-top: 1.6rem; padding: 1.3rem 1.5rem; border-radius: var(--radius); background: var(--bg-alt); border: 1px solid var(--line); }
+
+    /* ---------- PPDB: informasi, poster & ajakan mendaftar ---------- */
+    .ppdb-layout { display: grid; gap: 2.5rem; grid-template-columns: minmax(0, 1fr) 380px; align-items: start; }
+    .ppdb-layout.no-poster { grid-template-columns: minmax(0, 800px); justify-content: center; }
+    .ppdb-side { position: sticky; top: 100px; }
+
+    .ppdb-info { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1.8rem 2rem; }
+    .ppdb-info h2 { margin-bottom: 1.2rem; padding-bottom: .8rem; border-bottom: 1px solid var(--line); }
+    .ppdb-info p:last-child, .ppdb-info ul:last-child, .ppdb-info ol:last-child { margin-bottom: 0; }
+    .ppdb-h { margin-top: 1.6rem; color: var(--primary); }
+    .ppdb-sub { margin: 1.5rem 0 .8rem; font-size: 1rem; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: .6rem; }
+    .ppdb-sub::before { content: ""; width: 4px; height: 1.1em; border-radius: 4px; background: var(--primary); }
+    .ppdb-info ol.steps { margin-top: 0; }
+    .ppdb-info ol.steps li { align-items: flex-start; }
+    .ppdb-info ol.steps li span { padding-top: .25rem; }
+
+    .ppdb-poster { margin: 0 0 1.2rem; }
+    .ppdb-poster a { display: block; }
+    .ppdb-poster img { display: block; width: 100%; max-height: 75vh; object-fit: contain; border-radius: var(--radius); border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow-md); }
+    .ppdb-cta { padding: 1.3rem 1.4rem; text-align: center; background: var(--bg-alt); border: 1px solid var(--line); border-radius: var(--radius); }
+    .ppdb-cta p { margin-bottom: .9rem; }
+    .ppdb-cta p:last-child { margin-bottom: 0; }
+    .ppdb-cta .btn { display: block; }
 
     /* ---------- Footer ---------- */
     .site-footer { background: #0f172a; color: #cbd5e1; border-top: 4px solid var(--primary); }
@@ -354,6 +389,9 @@
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .welcome { grid-template-columns: 1fr; gap: 2.4rem; }
     .welcome-photo { width: min(300px, 80%); margin-inline: auto; }
+    .ppdb-layout, .ppdb-layout.no-poster { grid-template-columns: 1fr; }
+    .ppdb-side { position: static; order: -1; max-width: 420px; margin-inline: auto; width: 100%; }
+    .ppdb-info { padding: 1.4rem 1.3rem; }
 }
 @media (max-width: 960px) {
     .topbar { display: none; }
@@ -365,6 +403,8 @@
     }
     .nav.open { display: flex; }
     .nav a.btn { margin: .6rem 0 0; text-align: center; }
+    .nav a.btn.btn-outline { margin: .4rem 0 0; }
+    .nav-user { margin: .6rem 0 0; justify-content: space-between; }
     .nav .dropdown { padding: 0; }
     .nav .dropdown > button { width: 100%; text-align: left; cursor: default; }
     .nav .dropdown > button::after { display: none; }

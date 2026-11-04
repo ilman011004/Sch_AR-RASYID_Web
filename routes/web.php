@@ -7,13 +7,15 @@ use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\Admin\ResourceController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SliderPhotoController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\PortalController;
+use App\Http\Controllers\PpdbAuthController;
 use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\SiteController;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\SliderPhotoController;
+
 /*
 |--------------------------------------------------------------------------
 | Panel admin  (/admin)  — harus didaftarkan SEBELUM rute sekolah
@@ -76,6 +78,15 @@ Route::middleware(['auth', EnsureRole::class.':super_admin,admin,operator'])
         });
     });
 
+// Slider foto. Dulu hanya `auth`; sekarang dibatasi role admin supaya akun orang tua tidak bisa masuk.
+Route::middleware(['auth', EnsureRole::class.':super_admin,admin,operator'])
+    ->prefix('admin/{school}/slider')->name('admin.slider.')->group(function () {
+        Route::get('/', [SliderPhotoController::class, 'index'])->name('index');
+        Route::post('/', [SliderPhotoController::class, 'store'])->name('store');
+        Route::put('/{photo}', [SliderPhotoController::class, 'update'])->name('update');
+        Route::delete('/{photo}', [SliderPhotoController::class, 'destroy'])->name('destroy');
+    });
+
 /*
 |--------------------------------------------------------------------------
 | Situs induk yayasan (domain utama)
@@ -127,11 +138,24 @@ $schoolRoutes = function () {
     Route::get('/kontak', [SiteController::class, 'contact'])->name('contact');
     Route::post('/kontak', [SiteController::class, 'contactStore'])->middleware('throttle:5,1')->name('contact.store');
 
+    // --- PPDB: halaman publik (poster + informasi + cek status) ---
     Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb');
-    Route::post('/ppdb', [PpdbController::class, 'store'])->middleware('throttle:5,10')->name('ppdb.store');
-    Route::get('/ppdb/berhasil', [PpdbController::class, 'success'])->name('ppdb.success');
     Route::get('/ppdb/cek-status', [PpdbController::class, 'status'])->name('ppdb.status');
     Route::post('/ppdb/cek-status', [PpdbController::class, 'check'])->middleware('throttle:10,1')->name('ppdb.check');
+
+    // --- PPDB: akun pendaftar (orang tua / wali) ---
+    Route::get('/ppdb/masuk', [PpdbAuthController::class, 'showLogin'])->name('ppdb.login');
+    Route::post('/ppdb/masuk', [PpdbAuthController::class, 'login'])->middleware('throttle:6,1')->name('ppdb.login.submit');
+    Route::get('/ppdb/daftar-akun', [PpdbAuthController::class, 'showRegister'])->name('ppdb.register');
+    Route::post('/ppdb/daftar-akun', [PpdbAuthController::class, 'register'])->middleware('throttle:5,10')->name('ppdb.register.submit');
+
+    // --- PPDB: wajib login sebagai orang tua / wali ---
+    Route::middleware(['auth', EnsureRole::class.':parent'])->group(function () {
+        Route::post('/ppdb/keluar', [PpdbAuthController::class, 'logout'])->name('ppdb.logout');
+        Route::get('/ppdb/formulir', [PpdbController::class, 'form'])->name('ppdb.form');
+        Route::post('/ppdb/formulir', [PpdbController::class, 'store'])->middleware('throttle:5,10')->name('ppdb.store');
+        Route::get('/ppdb/berhasil', [PpdbController::class, 'success'])->name('ppdb.success');
+    });
 };
 
 if (config('school.routing') === 'subdomain') {
@@ -143,10 +167,3 @@ if (config('school.routing') === 'subdomain') {
         ->where(['school' => '[a-z0-9-]+'])
         ->group($schoolRoutes);
 }
-
-Route::middleware('auth')->prefix('admin/{school}/slider')->name('admin.slider.')->group(function () {
-    Route::get('/', [SliderPhotoController::class, 'index'])->name('index');
-    Route::post('/', [SliderPhotoController::class, 'store'])->name('store');
-    Route::put('/{photo}', [SliderPhotoController::class, 'update'])->name('update');
-    Route::delete('/{photo}', [SliderPhotoController::class, 'destroy'])->name('destroy');
-});

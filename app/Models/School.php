@@ -157,6 +157,12 @@ class School extends Model
         return $this->structure_image ? asset('storage/'.$this->structure_image) : null;
     }
 
+    /** Poster PPDB yang diunggah admin / super admin. */
+    public function ppdbPosterUrl(): ?string
+    {
+        return $this->ppdb_poster ? asset('storage/'.$this->ppdb_poster) : null;
+    }
+
     public function safeColor(): string
     {
         return preg_match('/^#[0-9a-fA-F]{6}$/', (string) $this->primary_color) ? $this->primary_color : '#0f766e';

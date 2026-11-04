@@ -10,8 +10,9 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 /**
- * Super admin : mengelola semua akun.
+ * Super admin : mengelola semua akun panel admin.
  * Admin sekolah: hanya membuat/mengelola OPERATOR di sekolahnya sendiri.
+ * Akun orang tua/wali (role "parent") dibuat sendiri lewat halaman PPDB dan tidak dikelola di sini.
  */
 class UserController extends Controller
 {
@@ -20,6 +21,7 @@ class UserController extends Controller
         $me = $request->user();
 
         $users = User::with('school')
+            ->where('role', '!=', 'parent')
             ->when(! $me->isSuperAdmin(), fn ($q) => $q->where('school_id', $me->school_id)->where('role', 'operator'))
             ->orderBy('role')->orderBy('name')
             ->get();
@@ -100,6 +102,9 @@ class UserController extends Controller
 
     private function authorizeTarget(Request $request, User $target): void
     {
+        // Akun orang tua tidak dikelola dari panel ini (siapa pun perannya).
+        abort_if($target->isParent(), 404);
+
         $me = $request->user();
 
         if ($me->isSuperAdmin()) {
@@ -123,7 +128,7 @@ class UserController extends Controller
         return [
             'target' => $user,
             'schools' => School::orderBy('sort')->orderBy('id')->get(),
-            'roles' => config('school.roles'),
+            'roles' => config('school.roles'), // sengaja tanpa "parent"
         ];
     }
 
