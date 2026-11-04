@@ -5,6 +5,7 @@ use App\Models\Faq;
 use App\Models\Gallery;
 use App\Models\Post;
 use App\Models\Program;
+use App\Models\Slide;
 use App\Models\Staff;
 
 /*
@@ -13,12 +14,33 @@ use App\Models\Staff;
  | 'resources'     : modul CRUD sederhana (satu pengendali dipakai untuk semuanya).
  | 'school_fields' : isi halaman "Pengaturan Sekolah".
  |
- | Tipe field: text, textarea, select, image, date, datetime, number, checkbox, color, url
+ | Tipe field: text, textarea, select, image, video, date, datetime, number, checkbox, color, url
+ | Opsi tambahan: 'button' (teks tombol upload), 'show_if' => ['nama_field' => 'nilai'] (tampil hanya bila field lain bernilai itu)
  */
 
 return [
 
     'resources' => [
+
+        'slider' => [
+            'label' => 'Slider Beranda',
+            'model' => Slide::class,
+            'dir' => 'slides',
+            'roles' => ['super_admin', 'admin'],
+            'columns' => ['type' => 'Jenis', 'sort' => 'Urutan'],
+            'order' => ['sort', 'asc'],
+            'fields' => [
+                ['name' => 'type', 'label' => 'Jenis slide', 'type' => 'select', 'rules' => 'required|in:foto,video',
+                    'options' => ['foto' => 'Foto', 'video' => 'Video']],
+                ['name' => 'image', 'label' => 'Foto', 'type' => 'image', 'button' => 'Pilih Foto',
+                    'help' => 'Pilih foto mendatar (lebar) agar tampil penuh.'],
+                ['name' => 'video', 'label' => 'Video', 'type' => 'video', 'max_kb' => 51200, 'button' => 'Pilih Video',
+                    'show_if' => ['type' => 'video'],
+                    'help' => 'Video diputar tanpa suara. Foto di atas dipakai sebagai gambar pembuka (boleh dikosongkan).'],
+                ['name' => 'sort', 'label' => 'Urutan', 'type' => 'number', 'rules' => 'nullable|integer|min:0|max:9999', 'default' => 0,
+                    'help' => 'Angka kecil tampil lebih dulu.'],
+            ],
+        ],
 
         'berita' => [
             'label' => 'Berita & Pengumuman',
@@ -146,8 +168,9 @@ return [
             ['name' => 'head_title', 'label' => 'Jabatan', 'type' => 'text', 'rules' => 'required|string|max:100',
                 'help' => 'Contoh: Kepala Sekolah, Ketua PAUD.'],
             ['name' => 'head_name', 'label' => 'Nama', 'type' => 'text', 'rules' => 'nullable|string|max:150'],
-            ['name' => 'head_photo', 'label' => 'Foto', 'type' => 'image'],
-            ['name' => 'welcome_message', 'label' => 'Kata sambutan / kata inspiratif', 'type' => 'textarea', 'rows' => 5, 'rules' => 'nullable|string|max:2000'],
+            ['name' => 'head_photo', 'label' => 'Foto', 'type' => 'image',
+                'help' => 'Disarankan foto potret (tegak), tampil di bagian Sambutan.'],
+            ['name' => 'welcome_message', 'label' => 'Kata sambutan / kata inspiratif', 'type' => 'textarea', 'rows' => 6, 'rules' => 'nullable|string|max:3000'],
         ],
 
         'Profil' => [
@@ -169,9 +192,8 @@ return [
             ['name' => 'email', 'label' => 'Email', 'type' => 'text', 'rules' => 'nullable|email|max:150'],
             ['name' => 'whatsapp', 'label' => 'WhatsApp', 'type' => 'text', 'rules' => ['nullable', 'regex:/^[0-9]{8,15}$/'],
                 'help' => 'Angka saja dengan kode negara, contoh: 6281234567890'],
-            ['name' => 'maps_embed_url', 'label' => 'URL embed Google Maps', 'type' => 'text',
-                'rules' => ['nullable', 'string', 'max:1000', 'regex:#^https://www\.google\.com/maps/embed\?#'],
-                'help' => 'Di Google Maps: Bagikan → Sematkan peta → salin isi src="..." saja.'],
+            ['name' => 'operating_hours', 'label' => 'Jam operasional', 'type' => 'textarea', 'rows' => 4, 'rules' => 'nullable|string|max:500',
+                'help' => 'Satu baris per hari. Contoh: Senin – Jumat: 07.00 – 15.00 WITA'],
             ['name' => 'facebook', 'label' => 'Facebook', 'type' => 'url', 'rules' => 'nullable|url:https|max:255'],
             ['name' => 'instagram', 'label' => 'Instagram', 'type' => 'url', 'rules' => 'nullable|url:https|max:255'],
             ['name' => 'youtube', 'label' => 'YouTube', 'type' => 'url', 'rules' => 'nullable|url:https|max:255'],

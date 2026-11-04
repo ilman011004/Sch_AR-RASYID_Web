@@ -17,6 +17,17 @@ return [
     'timezone' => env('SCHOOL_TIMEZONE', 'Asia/Makassar'),
     'locale' => env('SCHOOL_LOCALE', 'id'),
 
+    // Lokasi peta. Satu lokasi dipakai oleh yayasan dan semua jenjang.
+    'map' => [
+        'name' => env('SCHOOL_MAP_NAME', 'Kampus AR-Rasyid'),
+        'address' => env('SCHOOL_MAP_ADDRESS', 'FXPG+V4W, Segumbang, Batulicin, Tanah Bumbu Regency, South Kalimantan 72273'),
+        'query' => env('SCHOOL_MAP_QUERY', 'FXPG+V4W, Segumbang, Batulicin, Tanah Bumbu Regency, South Kalimantan 72273'),
+    ],
+
+    // Jam operasional (satu baris per kelompok hari). Pisahkan baris dengan tanda | di .env.
+    // GANTI sesuai jam sebenarnya.
+    'hours' => str_replace('|', "\n", env('SCHOOL_HOURS', 'Senin – Jumat: 07.00 – 15.00|Sabtu – Minggu: Tutup')),
+
     // Akun super admin pertama, dibuat oleh `php artisan db:seed`
     'seed_admin_name' => env('ADMIN_NAME', 'Super Admin'),
     'seed_admin_email' => env('ADMIN_EMAIL'),
@@ -50,13 +61,6 @@ return [
         'diterima' => 'Diterima',
         'cadangan' => 'Cadangan',
         'ditolak' => 'Tidak diterima',
-    ],
-
-    // Foto slider di beranda sekolah
-    'slider' => [
-        'max_photos' => env('SLIDER_MAX_PHOTOS', 3),
-        'max_size_kb' => 3072, // 3 MB
-        'interval_ms' => 5000,
     ],
 
     // Slug yang tidak boleh dipakai sekolah

@@ -4,54 +4,64 @@
 
 @section('content')
 
-{{-- Hero: judul, deskripsi, tombol, dan sambutan kepala sekolah --}}
+{{-- Hero: teks + slider foto --}}
 <section class="hero">
-    <div class="wrap hero-grid">
+    <div class="wrap hero-grid {{ $slides->isEmpty() ? 'no-slider' : '' }}">
         <div class="hero-text">
-            <p class="eyebrow">{{ $school->levelLabel() }}</p>
+            @if ($school->ppdbIsOpen())
+                <span class="pill">● Pendaftaran siswa baru dibuka</span>
+            @endif
+            <p class="eyebrow">{{ $school->levelLabel() }} · {{ $school->name }}</p>
             <h1>{{ $school->tagline ?: $school->name }}</h1>
             @if ($school->description)
                 <p class="lead">{{ $school->description }}</p>
             @endif
             <div class="btns">
-                <a class="btn" href="{{ route('profile', ['school' => $school, 'page' => 'sejarah']) }}">Lihat Profil</a>
-                <a class="btn btn-outline" href="{{ route('ppdb', $school) }}">Pendaftaran Siswa</a>
+                <a class="btn" href="{{ route('ppdb', $school) }}">Pendaftaran Siswa</a>
+                <a class="btn btn-outline" href="{{ route('profile', ['school' => $school, 'page' => 'sejarah']) }}">Lihat Profil</a>
             </div>
         </div>
 
-        <figure class="head-card">
-            @if ($school->headPhotoUrl())
-                <img src="{{ $school->headPhotoUrl() }}" alt="{{ $school->head_title }} {{ $school->head_name }}">
-            @else
-                <div class="avatar" aria-hidden="true">{{ mb_substr((string) $school->head_name ?: $school->name, 0, 1) }}</div>
-            @endif
-            <figcaption>
-                @if ($school->welcome_message)
-                    <blockquote>{{ $school->welcome_message }}</blockquote>
-                @endif
-                <strong>{{ $school->head_name }}</strong>
-                <span>{{ $school->head_title }}</span>
-            </figcaption>
-        </figure>
+        @include('partials.hero-slider', ['slides' => $slides])
     </div>
 </section>
 
-{{-- Visi & misi ringkas --}}
+{{-- Akses cepat --}}
+<div class="quick">
+    <div class="wrap quick-grid">
+        <a href="{{ route('ppdb', $school) }}">
+            <span class="qi">🎓</span>
+            <span><b>Pendaftaran Siswa</b><small>{{ $school->ppdbIsOpen() ? 'Sedang dibuka' : 'Lihat informasi' }}</small></span>
+        </a>
+        <a href="{{ route('profile', ['school' => $school, 'page' => 'visi-misi']) }}">
+            <span class="qi">🏫</span>
+            <span><b>Visi dan Misi</b><small>Kenali sekolah kami</small></span>
+        </a>
+        <a href="{{ route('programs', ['school' => $school, 'page' => 'unggulan']) }}">
+            <span class="qi">⭐</span>
+            <span><b>Program Unggulan</b><small>Program akademik</small></span>
+        </a>
+        <a href="{{ route('contact', $school) }}">
+            <span class="qi">✉️</span>
+            <span><b>Hubungi Kami</b><small>Tanya apa saja</small></span>
+        </a>
+    </div>
+</div>
+
+{{-- Sambutan kepala sekolah --}}
+@include('partials.welcome', ['entity' => $school])
+
+{{-- Visi & misi --}}
 @if ($school->vision || $school->missionList())
-<section class="section">
-    <div class="wrap two-col">
-        <div>
-            <h2>Visi</h2>
-            <p class="lead">{{ $school->vision }}</p>
+<section class="section alt">
+    <div class="wrap">
+        <div class="sec-head">
+            <span class="kicker">Tentang Kami</span>
+            <h2>Visi dan Misi</h2>
         </div>
-        <div>
-            <h2>Misi</h2>
-            <ul class="check">
-                @foreach ($school->missionList() as $m)
-                    <li>{{ $m }}</li>
-                @endforeach
-            </ul>
-            <a class="btn btn-outline" href="{{ route('profile', ['school' => $school, 'page' => 'visi-misi']) }}">Visi dan misi lengkap</a>
+        @include('partials.vm', ['entity' => $school])
+        <div class="center" style="margin-top:1.8rem">
+            <a class="btn btn-outline" href="{{ route('profile', ['school' => $school, 'page' => 'visi-misi']) }}">Visi, misi, dan tujuan lengkap</a>
         </div>
     </div>
 </section>
@@ -59,9 +69,12 @@
 
 {{-- Keunggulan --}}
 @if ($advantages->isNotEmpty())
-<section class="section alt">
+<section class="section">
     <div class="wrap">
-        <h2 class="center">Mengapa Anak Anda Harus Memilih Sekolah Kami?</h2>
+        <div class="sec-head">
+            <span class="kicker">Keunggulan</span>
+            <h2>Mengapa Memilih {{ $school->name }}?</h2>
+        </div>
         <div class="cards cols-4">
             @foreach ($advantages as $a)
                 <article class="card center">
@@ -75,8 +88,8 @@
 </section>
 @endif
 
-{{-- Berita & pengumuman terbaru --}}
-<section class="section">
+{{-- Berita --}}
+<section class="section alt">
     <div class="wrap">
         <div class="section-head">
             <h2>Berita dan Informasi Terbaru</h2>
@@ -97,7 +110,7 @@
 
 {{-- Galeri --}}
 @if ($photos->isNotEmpty())
-<section class="section alt">
+<section class="section">
     <div class="wrap">
         <div class="section-head">
             <h2>Galeri Kegiatan</h2>
@@ -106,7 +119,9 @@
         <div class="photo-grid">
             @foreach ($photos as $p)
                 <figure>
-                    <img src="{{ asset('storage/'.$p->image) }}" alt="{{ $p->title }}" loading="lazy">
+                    <a href="{{ route('gallery', $school) }}">
+                        <img src="{{ asset('storage/'.$p->image) }}" alt="{{ $p->title }}" loading="lazy">
+                    </a>
                     <figcaption>{{ $p->title }}</figcaption>
                 </figure>
             @endforeach
@@ -131,7 +146,10 @@
 @if ($faqs->isNotEmpty())
 <section class="section">
     <div class="wrap narrow">
-        <h2 class="center">Pertanyaan yang Sering Diajukan</h2>
+        <div class="sec-head">
+            <span class="kicker">FAQ</span>
+            <h2>Pertanyaan yang Sering Diajukan</h2>
+        </div>
         @foreach ($faqs as $f)
             <details class="faq">
                 <summary>{{ $f->question }}</summary>
@@ -141,5 +159,8 @@
     </div>
 </section>
 @endif
+
+{{-- Lokasi dan kontak --}}
+@include('partials.location', ['entity' => $school, 'contactUrl' => route('contact', $school)])
 
 @endsection

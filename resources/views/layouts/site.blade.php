@@ -10,6 +10,7 @@
         'kurikulum' => 'Kurikulum',
         'ekstrakurikuler' => 'Ekstrakurikuler',
     ];
+    $socials = ['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'];
 @endphp
 <!doctype html>
 <html lang="id">
@@ -21,10 +22,31 @@
     @if ($school->logoUrl())
         <link rel="icon" href="{{ $school->logoUrl() }}">
     @endif
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')
     <style>:root { --primary: {{ $school->safeColor() }}; }</style>
 </head>
 <body>
+
+<div class="topbar">
+    <div class="wrap">
+        <div class="group">
+            @if ($school->phone)<span>📞 {{ $school->phone }}</span>@endif
+            @if ($school->email)<a href="mailto:{{ $school->email }}">✉ {{ $school->email }}</a>@endif
+            @if ($school->whatsapp)<a href="https://wa.me/{{ $school->whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>@endif
+        </div>
+        <div class="group">
+            @foreach ($socials as $key => $label)
+                @if ($school->{$key})
+                    <a href="{{ $school->{$key} }}" target="_blank" rel="noopener">{{ $label }}</a>
+                @endif
+            @endforeach
+            <a href="{{ route('portal') }}">Situs {{ $school->foundation_name ?: 'Yayasan' }}</a>
+        </div>
+    </div>
+</div>
 
 <header class="site-header">
     <div class="wrap bar">
@@ -32,7 +54,10 @@
             @if ($school->logoUrl())
                 <img src="{{ $school->logoUrl() }}" alt="Logo {{ $school->name }}">
             @endif
-            <span>{{ $school->name }}</span>
+            <span class="brand-text">
+                <b>{{ $school->name }}</b>
+                @if ($school->foundation_name)<small>{{ $school->foundation_name }}</small>@endif
+            </span>
         </a>
 
         <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" data-nav-toggle>☰</button>
@@ -70,6 +95,18 @@
     @yield('content')
 </main>
 
+@if ($school->ppdbIsOpen() && ! request()->routeIs('ppdb*'))
+    <section class="cta-band">
+        <div class="wrap">
+            <div>
+                <h3>Pendaftaran siswa baru {{ $school->ppdb_year ?: '' }} telah dibuka</h3>
+                <p>Daftarkan putra-putri Anda di {{ $school->name }} secara online.</p>
+            </div>
+            <a class="btn" href="{{ route('ppdb', $school) }}">Daftar Sekarang</a>
+        </div>
+    </section>
+@endif
+
 <footer class="site-footer">
     <div class="wrap footer-grid">
         <div>
@@ -77,7 +114,10 @@
                 @if ($school->logoUrl())
                     <img src="{{ $school->logoUrl() }}" alt="Logo {{ $school->name }}">
                 @endif
-                <span>{{ $school->name }}</span>
+                <span class="brand-text">
+                    <b>{{ $school->name }}</b>
+                    @if ($school->foundation_name)<small>{{ $school->foundation_name }}</small>@endif
+                </span>
             </div>
             @if ($school->tagline)
                 <p class="muted">{{ $school->tagline }}</p>
@@ -112,7 +152,7 @@
         <div>
             <h4>Media Sosial</h4>
             <ul class="plain">
-                @foreach (['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'] as $key => $label)
+                @foreach ($socials as $key => $label)
                     @if ($school->{$key})
                         <li><a href="{{ $school->{$key} }}" rel="noopener" target="_blank">{{ $label }}</a></li>
                     @endif

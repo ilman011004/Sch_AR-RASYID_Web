@@ -5,9 +5,12 @@
         </a>
     @endif
     <div class="body">
-        <span class="tag {{ $post->type === 'pengumuman' ? 'tag-warn' : '' }}">{{ $post->typeLabel() }}</span>
+        <div class="meta">
+            <span class="tag {{ $post->type === 'pengumuman' ? 'tag-warn' : '' }}">{{ $post->typeLabel() }}</span>
+            <span class="date">{{ $post->published_at?->translatedFormat('d F Y') }}</span>
+        </div>
         <h3><a href="{{ route('news.show', ['school' => $school, 'slug' => $post->slug]) }}">{{ $post->title }}</a></h3>
-        <p class="muted small">{{ $post->published_at?->translatedFormat('d F Y') }}</p>
         <p>{{ $post->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($post->body), 110) }}</p>
+        <a class="more" href="{{ route('news.show', ['school' => $school, 'slug' => $post->slug]) }}">Baca selengkapnya →</a>
     </div>
 </article>

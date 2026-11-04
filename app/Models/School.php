@@ -9,7 +9,7 @@ use App\Models\Gallery;
 use App\Models\Post;
 use App\Models\Program;
 use App\Models\Registration;
-use App\Models\SliderPhoto;
+use App\Models\Slide;
 use App\Models\Staff;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -46,6 +46,11 @@ class School extends Model
         return $this->hasMany(Gallery::class);
     }
 
+    public function slides(): HasMany
+    {
+        return $this->hasMany(Slide::class);
+    }
+
     public function staff(): HasMany
     {
         return $this->hasMany(Staff::class);
@@ -74,12 +79,6 @@ class School extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(ContactMessage::class);
-    }
-
-    /** Foto slider beranda, urut sesuai sort_order. */
-    public function sliderPhotos(): HasMany
-    {
-        return $this->hasMany(SliderPhoto::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function levelLabel(): string

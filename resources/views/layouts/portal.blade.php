@@ -5,6 +5,7 @@
         'struktur' => 'Struktur Organisasi',
         'pegawai' => 'Pegawai',
     ];
+    $socials = ['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'];
 @endphp
 <!doctype html>
 <html lang="id">
@@ -16,10 +17,30 @@
     @if ($foundation->logoUrl())
         <link rel="icon" href="{{ $foundation->logoUrl() }}">
     @endif
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')
     <style>:root { --primary: {{ $foundation->safeColor() }}; }</style>
 </head>
 <body>
+
+<div class="topbar">
+    <div class="wrap">
+        <div class="group">
+            @if ($foundation->phone)<span>📞 {{ $foundation->phone }}</span>@endif
+            @if ($foundation->email)<a href="mailto:{{ $foundation->email }}">✉ {{ $foundation->email }}</a>@endif
+            @if ($foundation->whatsapp)<a href="https://wa.me/{{ $foundation->whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>@endif
+        </div>
+        <div class="group">
+            @foreach ($socials as $key => $label)
+                @if ($foundation->{$key})
+                    <a href="{{ $foundation->{$key} }}" target="_blank" rel="noopener">{{ $label }}</a>
+                @endif
+            @endforeach
+        </div>
+    </div>
+</div>
 
 <header class="site-header">
     <div class="wrap bar">
@@ -27,7 +48,10 @@
             @if ($foundation->logoUrl())
                 <img src="{{ $foundation->logoUrl() }}" alt="Logo {{ $foundation->name }}">
             @endif
-            <span>{{ $foundation->name }}</span>
+            <span class="brand-text">
+                <b>{{ $foundation->name }}</b>
+                <small>Yayasan Pendidikan</small>
+            </span>
         </a>
 
         <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" data-nav-toggle>☰</button>
@@ -81,7 +105,10 @@
                 @if ($foundation->logoUrl())
                     <img src="{{ $foundation->logoUrl() }}" alt="Logo {{ $foundation->name }}">
                 @endif
-                <span>{{ $foundation->name }}</span>
+                <span class="brand-text">
+                    <b>{{ $foundation->name }}</b>
+                    <small>Yayasan Pendidikan</small>
+                </span>
             </div>
             @if ($foundation->tagline)
                 <p class="muted">{{ $foundation->tagline }}</p>
@@ -112,7 +139,7 @@
         <div>
             <h4>Media Sosial</h4>
             <ul class="plain">
-                @foreach (['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'] as $key => $label)
+                @foreach ($socials as $key => $label)
                     @if ($foundation->{$key})
                         <li><a href="{{ $foundation->{$key} }}" rel="noopener" target="_blank">{{ $label }}</a></li>
                     @endif

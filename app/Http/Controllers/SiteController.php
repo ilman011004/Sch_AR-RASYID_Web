@@ -27,6 +27,7 @@ class SiteController extends Controller
     {
         return view('site.home', [
             'school' => $school,
+            'slides' => $school->slides()->orderBy('sort')->orderBy('id')->get(),
             'advantages' => $school->advantages()->orderBy('sort')->orderBy('id')->get(),
             'news' => $school->posts()->published()->latest('published_at')->take(3)->get(),
             'photos' => $school->galleries()->latest()->take(6)->get(),

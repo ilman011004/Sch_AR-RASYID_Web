@@ -11,9 +11,12 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Satu pengendali untuk semua modul CRUD sederhana.
  * Definisi modul ada di config/admin.php. Semua data otomatis dibatasi ke sekolah aktif.
+ * Tipe berkas: image (foto) dan video.
  */
 class ResourceController extends Controller
 {
+    private const FILE_TYPES = ['image', 'video'];
+
     public function index(Request $request, string $resource)
     {
         $d = $this->definition($request, $resource);
@@ -65,7 +68,7 @@ class ResourceController extends Controller
         $item = $this->find($request, $d, $id);
 
         foreach ($d['fields'] as $f) {
-            if ($f['type'] === 'image' && $item->{$f['name']}) {
+            if (in_array($f['type'], self::FILE_TYPES, true) && $item->{$f['name']}) {
                 Storage::disk('public')->delete($item->{$f['name']});
             }
         }
@@ -111,6 +114,8 @@ class ResourceController extends Controller
             if ($f['type'] === 'image') {
                 $required = $creating && ! empty($f['required_on_create']) ? 'required' : 'nullable';
                 $rules[$f['name']] = $required.'|image|mimes:jpg,jpeg,png,webp|max:2048';
+            } elseif ($f['type'] === 'video') {
+                $rules[$f['name']] = 'nullable|file|mimetypes:video/mp4,video/webm|max:'.($f['max_kb'] ?? 51200);
             } else {
                 $rules[$f['name']] = $f['rules'] ?? 'nullable';
             }
@@ -129,7 +134,7 @@ class ResourceController extends Controller
         foreach ($d['fields'] as $f) {
             $name = $f['name'];
 
-            if ($f['type'] === 'image') {
+            if (in_array($f['type'], self::FILE_TYPES, true)) {
                 if ($request->hasFile($name)) {
                     $data[$name] = $request->file($name)->store($d['dir'], 'public');
 

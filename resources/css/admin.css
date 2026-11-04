@@ -71,16 +71,30 @@
     .grid-2 { @apply grid items-start gap-5; grid-template-columns: 1.4fr 1fr; }
 
     .field { @apply mb-4; }
+    .field[hidden] { display: none; }
     .field > label { @apply block font-semibold mb-1; }
     .field input[type=text], .field input[type=email], .field input[type=password], .field input[type=url],
     .field input[type=number], .field input[type=date], .field input[type=datetime-local], .field select, .field textarea {
         @apply w-full bg-white; max-width: 640px; padding: .55rem .7rem; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit;
     }
     .field input[type=color] { @apply bg-white; width: 70px; height: 40px; padding: 2px; border: 1px solid #cbd5e1; border-radius: 8px; }
-    .field input[type=file] { @apply text-sm; }
     .field small { @apply block mt-1; }
     .field label.check, label.check { @apply flex items-center gap-2 font-medium; }
     img.thumb { @apply rounded-lg mb-2; max-height: 90px; border: 1px solid var(--line); }
+    img.thumb[hidden] { display: none; }
+
+    /* ---------- Tombol upload ---------- */
+    .upload img.thumb { max-height: 160px; display: block; }
+    .upload-row { @apply flex flex-wrap items-center gap-3; }
+    .upload-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+    .upload-btn {
+        @apply inline-flex items-center gap-2 cursor-pointer font-semibold text-white;
+        padding: .7rem 1.4rem; border-radius: 10px; background: var(--primary);
+        box-shadow: 0 2px 6px rgba(15, 118, 110, .25); transition: filter .15s, transform .15s;
+    }
+    .upload-btn:hover { filter: brightness(.92); transform: translateY(-1px); }
+    .upload-input:focus-visible + .upload-btn { outline: 3px solid #99f6e4; outline-offset: 2px; }
+    .upload-name { font-size: .9rem; color: var(--muted); word-break: break-all; }
 
     /* ---------- Tabel ---------- */
     .table { @apply w-full bg-white overflow-hidden; border-collapse: collapse; border: 1px solid var(--line); border-radius: 12px; }

@@ -22,6 +22,7 @@ class PortalController extends Controller
     public function home()
     {
         return view('portal.home', [
+            'slides' => School::foundation()->slides()->orderBy('sort')->orderBy('id')->get(),
             'news' => Post::forPortal()->latest('published_at')->take(3)->get(),
             'announcements' => Post::forPortal()->where('type', 'pengumuman')->latest('published_at')->take(3)->get(),
         ]);

@@ -26,27 +26,8 @@
 
 @elseif ($page === 'visi-misi')
     <section class="section">
-        <div class="wrap narrow">
-            <h2>Visi</h2>
-            <p class="lead">{{ $school->vision ?: '—' }}</p>
-
-            <h2>Misi</h2>
-            <ul class="check">
-                @forelse ($school->missionList() as $m)
-                    <li>{{ $m }}</li>
-                @empty
-                    <li class="muted">Belum diisi.</li>
-                @endforelse
-            </ul>
-
-            <h2>Tujuan</h2>
-            <ul class="check">
-                @forelse ($school->goalsList() as $g)
-                    <li>{{ $g }}</li>
-                @empty
-                    <li class="muted">Belum diisi.</li>
-                @endforelse
-            </ul>
+        <div class="wrap">
+            @include('partials.vm', ['entity' => $school, 'goals' => true])
         </div>
     </section>
 
