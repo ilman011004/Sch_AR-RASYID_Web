@@ -1,0 +1,100 @@
+@layer components {
+
+    .badge.stage-1 {
+        background: #e0f2fe;
+        color: #075985;
+    }
+
+    .badge.stage-2 {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge.stage-3 {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .badge.stage-4 {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .stepper {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.2rem;
+        gap: .5rem;
+    }
+
+    .stepper li {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .35rem;
+        position: relative;
+        text-align: center;
+        font-size: .85rem;
+        color: var(--muted);
+    }
+
+    .stepper li+li::before {
+        content: "";
+        position: absolute;
+        top: 15px;
+        right: 50%;
+        width: 100%;
+        height: 3px;
+        background: var(--line);
+        z-index: 0;
+    }
+
+    .stepper li.done+li::before,
+    .stepper li.current::before {
+        background: var(--primary);
+    }
+
+    .stepper .dot {
+        position: relative;
+        z-index: 1;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        background: #fff;
+        border: 3px solid var(--line);
+        color: var(--muted);
+    }
+
+    .stepper li.done .dot {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+
+    .stepper li.current .dot {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .stepper li.current .lbl,
+    .stepper li.done .lbl {
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .stage-panel.is-current {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
+    }
+
+    .btn[disabled] {
+        opacity: .5;
+        cursor: not-allowed;
+        filter: none;
+    }
+}

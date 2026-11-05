@@ -13,14 +13,7 @@
         @if (isset($mine) && $mine->isNotEmpty())
             <h2>Pendaftaran saya</h2>
             @foreach ($mine as $r)
-                <div class="result">
-                    <h3>{{ $r->student_name }}</h3>
-                    <p class="muted small">{{ $r->reg_number }}</p>
-                    <p>Status: <span class="tag {{ $r->status === 'diterima' ? 'tag-ok' : ($r->status === 'ditolak' ? 'tag-warn' : '') }}">{{ $r->statusLabel() }}</span></p>
-                    @if ($r->admin_note)
-                        <p><strong>Catatan sekolah:</strong><br>{{ $r->admin_note }}</p>
-                    @endif
-                </div>
+                @include('site._ppdb-progress', ['r' => $r])
             @endforeach
             <hr>
         @endif
@@ -40,14 +33,7 @@
 
         @if (! empty($searched))
             @if ($result)
-                <div class="result">
-                    <h3>{{ $result->student_name }}</h3>
-                    <p class="muted small">{{ $result->reg_number }}</p>
-                    <p>Status: <span class="tag {{ $result->status === 'diterima' ? 'tag-ok' : ($result->status === 'ditolak' ? 'tag-warn' : '') }}">{{ $result->statusLabel() }}</span></p>
-                    @if ($result->admin_note)
-                        <p><strong>Catatan sekolah:</strong><br>{{ $result->admin_note }}</p>
-                    @endif
-                </div>
+                @include('site._ppdb-progress', ['r' => $result])
             @else
                 <div class="alert err-box">Data tidak ditemukan. Periksa kembali nomor pendaftaran dan tanggal lahir.</div>
             @endif

@@ -1,0 +1,89 @@
+@layer components {
+
+    .ppdb-track .stepper {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 1.2rem 0 1.4rem;
+        gap: .4rem;
+    }
+
+    .ppdb-track .stepper li {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .4rem;
+        position: relative;
+        text-align: center;
+        font-size: .82rem;
+        color: var(--muted);
+    }
+
+    .ppdb-track .stepper li+li::before {
+        content: "";
+        position: absolute;
+        top: 17px;
+        right: 50%;
+        width: 100%;
+        height: 3px;
+        background: var(--line);
+        z-index: 0;
+    }
+
+    .ppdb-track .stepper li.done+li::before,
+    .ppdb-track .stepper li.current::before {
+        background: var(--primary);
+    }
+
+    .ppdb-track .stepper .dot {
+        position: relative;
+        z-index: 1;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        background: #fff;
+        border: 3px solid var(--line);
+        color: var(--muted);
+    }
+
+    .ppdb-track .stepper li.done .dot {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+
+    .ppdb-track .stepper li.current .dot {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .ppdb-track .stepper li.done .lbl,
+    .ppdb-track .stepper li.current .lbl {
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    .interview-box {
+        margin: 1rem 0;
+        padding: 1rem 1.2rem;
+        border-radius: var(--radius);
+        background: color-mix(in srgb, var(--primary) 9%, #fff);
+        border: 1px solid color-mix(in srgb, var(--primary) 30%, #fff);
+    }
+
+    .interview-box strong {
+        display: block;
+        color: var(--ink);
+        margin-bottom: .2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .ppdb-track .stepper .lbl {
+        font-size: .72rem;
+    }
+}

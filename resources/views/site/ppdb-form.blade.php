@@ -90,18 +90,18 @@
             </fieldset>
 
             <fieldset>
-                <legend>Dokumen (JPG, PNG, atau PDF — maks. 2 MB per berkas)</legend>
+                <legend>Dokumen wajib (JPG, PNG, atau PDF — maks. 2 MB per berkas)</legend>
 
-                <label>Akta kelahiran
-                    <input type="file" name="doc_birth_cert" accept=".jpg,.jpeg,.png,.pdf">
+                <label>Akta kelahiran *
+                    <input type="file" name="doc_birth_cert" accept=".jpg,.jpeg,.png,.pdf" required>
                     @error('doc_birth_cert')<span class="err">{{ $message }}</span>@enderror
                 </label>
-                <label>Kartu keluarga
-                    <input type="file" name="doc_family_card" accept=".jpg,.jpeg,.png,.pdf">
+                <label>Kartu keluarga *
+                    <input type="file" name="doc_family_card" accept=".jpg,.jpeg,.png,.pdf" required>
                     @error('doc_family_card')<span class="err">{{ $message }}</span>@enderror
                 </label>
-                <label>Pas foto (JPG / PNG)
-                    <input type="file" name="doc_photo" accept=".jpg,.jpeg,.png">
+                <label>Pas foto (JPG / PNG) *
+                    <input type="file" name="doc_photo" accept=".jpg,.jpeg,.png" required>
                     @error('doc_photo')<span class="err">{{ $message }}</span>@enderror
                 </label>
             </fieldset>

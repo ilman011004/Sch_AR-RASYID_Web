@@ -44,9 +44,9 @@ class PpdbController extends Controller
             'parent_phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
             'parent_email' => 'nullable|email|max:150',
             'parent_job' => 'nullable|string|max:100',
-            'doc_birth_cert' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'doc_family_card' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'doc_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'doc_birth_cert' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'doc_family_card' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'doc_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'website' => 'prohibited', // kolom jebakan bot
         ], [], [
             'student_name' => 'nama calon siswa',
@@ -85,7 +85,8 @@ class PpdbController extends Controller
                 'year' => $year,
                 'seq' => $seq,
                 'reg_number' => sprintf('PPDB-%d-%s-%04d', $year, strtoupper($school->slug), $seq),
-                'status' => 'baru',
+                'stage' => 1,
+                'status' => 'diproses',
             ]);
         });
 

@@ -70,6 +70,10 @@ Route::middleware(['auth', EnsureRole::class.':super_admin,admin,operator'])
         Route::middleware(EnsureRole::class.':super_admin')->group(function () {
             Route::post('pilih-sekolah', [DashboardController::class, 'switchSchool'])->name('switch-school');
 
+            // Pendaftar semua jenjang (PAUD sampai SMA)
+            Route::get('semua-pendaftar', [RegistrationController::class, 'all'])->name('ppdb.all');
+            Route::get('semua-pendaftar/export', [RegistrationController::class, 'exportAll'])->name('ppdb.all.export');
+
             Route::get('sekolah', [SchoolController::class, 'index'])->name('schools.index');
             Route::get('sekolah/create', [SchoolController::class, 'create'])->name('schools.create');
             Route::post('sekolah', [SchoolController::class, 'store'])->name('schools.store');
@@ -78,7 +82,7 @@ Route::middleware(['auth', EnsureRole::class.':super_admin,admin,operator'])
         });
     });
 
-// Slider foto. Dulu hanya `auth`; sekarang dibatasi role admin supaya akun orang tua tidak bisa masuk.
+// Slider foto. Dibatasi role admin supaya akun orang tua tidak bisa masuk.
 Route::middleware(['auth', EnsureRole::class.':super_admin,admin,operator'])
     ->prefix('admin/{school}/slider')->name('admin.slider.')->group(function () {
         Route::get('/', [SliderPhotoController::class, 'index'])->name('index');

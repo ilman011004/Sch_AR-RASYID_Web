@@ -46,7 +46,14 @@
         @endforeach
 
         @if ($canManage)
-            <a href="{{ route('admin.ppdb.index') }}" @class(['active' => request()->routeIs('admin.ppdb.*')])>Pendaftar PPDB</a>
+            <a href="{{ route('admin.ppdb.index') }}" @class(['active' => request()->routeIs('admin.ppdb.index', 'admin.ppdb.show')])>Pendaftar PPDB</a>
+        @endif
+
+        @if ($isSuper)
+            <a href="{{ route('admin.ppdb.all') }}" @class(['active' => request()->routeIs('admin.ppdb.all*')])>Semua Pendaftar (Yayasan)</a>
+        @endif
+
+        @if ($canManage)
             <a href="{{ route('admin.messages.index') }}" @class(['active' => request()->routeIs('admin.messages.*')])>Pesan Masuk</a>
             <a href="{{ route('admin.settings') }}" @class(['active' => request()->routeIs('admin.settings*')])>Pengaturan Sekolah</a>
             <a href="{{ route('admin.users.index') }}" @class(['active' => request()->routeIs('admin.users.*')])>Akun Pengguna</a>
