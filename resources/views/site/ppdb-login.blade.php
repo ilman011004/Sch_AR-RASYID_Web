@@ -26,6 +26,10 @@
                 <h1>Masuk</h1>
                 <p class="auth-sub">Gunakan akun orang tua / wali yang sudah terdaftar.</p>
 
+                @if (session('status'))
+                    <div class="auth-alert" style="color:#166534;background:#dcfce7;border-color:#bbf7d0">{{ session('status') }}</div>
+                @endif
+
                 @if (session('error'))
                     <div class="auth-alert">{{ session('error') }}</div>
                 @endif
@@ -40,7 +44,8 @@
                         <label for="email">Email</label>
                         <div class="auth-input">
                             <input id="email" type="email" name="email" value="{{ old('email') }}"
-                                   placeholder="nama@email.com" required autofocus autocomplete="username">
+                                   placeholder="nama@email.com" required autocomplete="username"
+                                   @if (! old('email')) autofocus @endif>
                         </div>
                     </div>
 
@@ -48,7 +53,8 @@
                         <label for="password">Kata sandi</label>
                         <div class="auth-input has-toggle">
                             <input id="password" type="password" name="password"
-                                   placeholder="Masukkan kata sandi" required autocomplete="current-password">
+                                   placeholder="Masukkan kata sandi" required autocomplete="current-password"
+                                   @if (old('email')) autofocus @endif>
                             <button type="button" class="toggle-pw" data-toggle-password aria-label="Tampilkan kata sandi">Lihat</button>
                         </div>
                         @error('password')<span class="err">{{ $message }}</span>@enderror

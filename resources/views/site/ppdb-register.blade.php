@@ -26,6 +26,10 @@
                 <h1>Buat Akun</h1>
                 <p class="auth-sub">Akun ini dipakai orang tua / wali untuk mendaftarkan calon siswa.</p>
 
+                @if (session('error'))
+                    <div class="auth-alert">{{ session('error') }}</div>
+                @endif
+
                 @if ($errors->any())
                     <div class="auth-alert">Ada isian yang belum benar. Silakan periksa kolom yang ditandai.</div>
                 @endif
@@ -70,8 +74,8 @@
                         </div>
                     </div>
 
-                    <button class="btn auth-submit" type="submit" style="margin-top:1.4rem">Buat akun &amp; lanjut mendaftar</button>
-                    <p class="auth-note">Data Anda hanya dipakai untuk proses penerimaan siswa baru {{ $school->name }}.</p>
+                    <button class="btn auth-submit" type="submit" style="margin-top:1.4rem">Buat akun &amp; kirim kode verifikasi</button>
+                    <p class="auth-note">Kode verifikasi 6 digit akan dikirim ke email Anda. Data Anda hanya dipakai untuk proses penerimaan siswa baru {{ $school->name }}.</p>
                 </form>
 
                 <p class="auth-switch">Sudah punya akun? <a href="{{ route('ppdb.login', $school) }}">Masuk</a></p>

@@ -153,6 +153,11 @@ $schoolRoutes = function () {
     Route::get('/ppdb/daftar-akun', [PpdbAuthController::class, 'showRegister'])->name('ppdb.register');
     Route::post('/ppdb/daftar-akun', [PpdbAuthController::class, 'register'])->middleware('throttle:5,10')->name('ppdb.register.submit');
 
+    // Verifikasi email dengan kode OTP (akun dibuat setelah kode benar)
+    Route::get('/ppdb/verifikasi', [PpdbAuthController::class, 'showVerify'])->name('ppdb.verify');
+    Route::post('/ppdb/verifikasi', [PpdbAuthController::class, 'verify'])->middleware('throttle:10,10')->name('ppdb.verify.submit');
+    Route::post('/ppdb/verifikasi/kirim-ulang', [PpdbAuthController::class, 'resend'])->middleware('throttle:5,10')->name('ppdb.verify.resend');
+
     // --- PPDB: wajib login sebagai orang tua / wali ---
     Route::middleware(['auth', EnsureRole::class.':parent'])->group(function () {
         Route::post('/ppdb/keluar', [PpdbAuthController::class, 'logout'])->name('ppdb.logout');
