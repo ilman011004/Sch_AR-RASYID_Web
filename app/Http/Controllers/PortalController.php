@@ -76,9 +76,22 @@ class PortalController extends Controller
     {
         $post = School::foundation()->posts()->published()->where('slug', $slug)->firstOrFail();
 
-        $others = Post::forPortal()->where('id', '!=', $post->id)
-            ->latest('published_at')->take(3)->get();
+        $otherNews = Post::forPortal()->where('id', '!=', $post->id)
+            ->where('type', 'berita')
+            ->latest('published_at')->take(5)->get();
 
-        return view('portal.news-show', ['post' => $post, 'others' => $others]);
+        $announcements = Post::forPortal()->where('id', '!=', $post->id)
+            ->where('type', 'pengumuman')
+            ->latest('published_at')->take(5)->get();
+
+        $others = Post::forPortal()->where('id', '!=', $post->id)
+            ->latest('published_at')->take(5)->get();
+
+        return view('portal.news-show', [
+            'post' => $post,
+            'otherNews' => $otherNews,
+            'announcements' => $announcements,
+            'others' => $others,
+        ]);
     }
 }

@@ -54,8 +54,10 @@ Route::middleware(['auth', EnsureRole::class.':super_admin,admin,operator'])
             Route::get('ppdb/{id}/dokumen/{field}', [RegistrationController::class, 'document'])
                 ->whereNumber('id')->name('ppdb.document');
 
+            // Pesan kontak: dibatasi per jenjang di MessageController (AdminContext::schoolId())
             Route::get('pesan', [MessageController::class, 'index'])->name('messages.index');
             Route::post('pesan/{id}/baca', [MessageController::class, 'read'])->whereNumber('id')->name('messages.read');
+            Route::post('pesan/{id}/balas', [MessageController::class, 'reply'])->whereNumber('id')->name('messages.reply');
             Route::delete('pesan/{id}', [MessageController::class, 'destroy'])->whereNumber('id')->name('messages.destroy');
 
             Route::get('akun', [UserController::class, 'index'])->name('users.index');
@@ -139,8 +141,10 @@ $schoolRoutes = function () {
     Route::get('/berita', [SiteController::class, 'news'])->name('news');
     Route::get('/berita/{slug}', [SiteController::class, 'newsShow'])->name('news.show');
     Route::get('/galeri', [SiteController::class, 'gallery'])->name('gallery');
+
+    // Kontak: kirim pesan wajib login (dicek di SiteController, karena login per jenjang lewat ppdb.login)
     Route::get('/kontak', [SiteController::class, 'contact'])->name('contact');
-    Route::post('/kontak', [SiteController::class, 'contactStore'])->middleware('throttle:5,1')->name('contact.store');
+    Route::post('/kontak', [SiteController::class, 'contactStore'])->middleware('throttle:5,10')->name('contact.store');
 
     // --- PPDB: halaman publik (poster + informasi + cek status) ---
     Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb');
@@ -158,9 +162,11 @@ $schoolRoutes = function () {
     Route::post('/ppdb/verifikasi', [PpdbAuthController::class, 'verify'])->middleware('throttle:10,10')->name('ppdb.verify.submit');
     Route::post('/ppdb/verifikasi/kirim-ulang', [PpdbAuthController::class, 'resend'])->middleware('throttle:5,10')->name('ppdb.verify.resend');
 
+      // Keluar: cukup sudah login, role apa pun boleh logout
+    Route::post('/ppdb/keluar', [PpdbAuthController::class, 'logout'])->middleware('auth')->name('ppdb.logout');
+
     // --- PPDB: wajib login sebagai orang tua / wali ---
     Route::middleware(['auth', EnsureRole::class.':parent'])->group(function () {
-        Route::post('/ppdb/keluar', [PpdbAuthController::class, 'logout'])->name('ppdb.logout');
         Route::get('/ppdb/formulir', [PpdbController::class, 'form'])->name('ppdb.form');
         Route::post('/ppdb/formulir', [PpdbController::class, 'store'])->middleware('throttle:5,10')->name('ppdb.store');
         Route::get('/ppdb/berhasil', [PpdbController::class, 'success'])->name('ppdb.success');

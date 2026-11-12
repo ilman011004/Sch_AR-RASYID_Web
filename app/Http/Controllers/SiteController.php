@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMessageReceived;
 use App\Models\ContactMessage;
 use App\Models\School;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class SiteController extends Controller
 {
@@ -50,15 +52,21 @@ class SiteController extends Controller
         abort_unless(isset(self::PROFILE_PAGES[$page]), 404);
 
         $staff = collect();
+        $milestones = collect();
 
         if ($page === 'pegawai') {
             $staff = $school->staff()->orderBy('sort')->orderBy('id')->get()->groupBy('staff_group');
+        }
+
+        if ($page === 'sejarah') {
+            $milestones = $school->milestones()->orderBy('sort')->orderBy('year')->orderBy('id')->get();
         }
 
         return view('site.profile', [
             'school' => $school,
             'page' => $page,
             'title' => self::PROFILE_PAGES[$page],
+            'milestones' => $milestones,
             'educators' => $staff->get('pendidik', collect()),
             'support' => $staff->get('kependidikan', collect()),
         ]);
@@ -104,11 +112,23 @@ class SiteController extends Controller
     {
         $post = $school->posts()->published()->where('slug', $slug)->firstOrFail();
 
-        $others = $school->posts()->published()
+        // Kotak samping: berita lain, lalu pengumuman lain (tanpa tulisan yang sedang dibuka)
+        $otherNews = $school->posts()->published()
             ->where('id', '!=', $post->id)
-            ->latest('published_at')->take(3)->get();
+            ->where('type', 'berita')
+            ->latest('published_at')->take(5)->get();
 
-        return view('site.news-show', ['school' => $school, 'post' => $post, 'others' => $others]);
+        $announcements = $school->posts()->published()
+            ->where('id', '!=', $post->id)
+            ->where('type', 'pengumuman')
+            ->latest('published_at')->take(5)->get();
+
+        return view('site.news-show', [
+            'school' => $school,
+            'post' => $post,
+            'otherNews' => $otherNews,
+            'announcements' => $announcements,
+        ]);
     }
 
     public function gallery(Request $request, School $school)
@@ -126,22 +146,48 @@ class SiteController extends Controller
 
     public function contact(School $school)
     {
+        // Tamu dikembalikan ke halaman ini setelah selesai login
+        if (! auth()->check()) {
+            session(['url.intended' => route('contact', $school)]);
+        }
+
         return view('site.contact', ['school' => $school]);
     }
 
     public function contactStore(Request $request, School $school)
     {
+        $user = $request->user();
+
+        // Wajib login
+        if (! $user) {
+            session(['url.intended' => route('contact', $school)]);
+
+            return redirect()->route('ppdb.login', $school)
+                ->with('status', 'Silakan masuk terlebih dahulu untuk mengirim pesan.');
+        }
+
         $data = $request->validate([
             'name' => 'required|string|max:150',
-            'email' => 'nullable|email|max:150',
-            'phone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s]*$/'],
             'message' => 'required|string|max:2000',
-            'website' => 'prohibited', // kolom jebakan untuk bot; manusia tidak melihatnya
         ]);
 
-        unset($data['website']);
+        $contact = ContactMessage::create([
+            'school_id' => $school->id, // dari alamat halaman, bukan dari isian formulir
+            'user_id' => $user->id,
+            'name' => $data['name'],
+            'email' => $user->email,
+            'phone' => $user->phone ?? null,
+            'message' => $data['message'],
+        ]);
 
-        ContactMessage::create($data + ['school_id' => $school->id]);
+        // Email hanya ke sekolah jenjang ini. Bila gagal kirim, pesan tetap tersimpan.
+        if (filled($school->email)) {
+            try {
+                Mail::to($school->email)->send(new ContactMessageReceived($contact, $school));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
 
         return redirect()->route('contact', $school)
             ->with('status', 'Terima kasih, pesan Anda sudah kami terima.');

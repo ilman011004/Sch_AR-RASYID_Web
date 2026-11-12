@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\Advantage;
+use App\Models\Facility; // BARU
 use App\Models\Faq;
 use App\Models\Gallery;
+use App\Models\Milestone;
 use App\Models\Post;
 use App\Models\Program;
 use App\Models\Slide;
@@ -16,12 +18,15 @@ use App\Models\Staff;
  |
  | Tipe field: text, textarea, select, image, video, date, datetime, number, checkbox, color, url
  | Opsi tambahan: 'button' (teks tombol upload), 'show_if' => ['nama_field' => 'nilai'] (tampil hanya bila field lain bernilai itu)
+ | BARU (khusus school_fields): 'only' => 'foundation' (hanya tampil untuk yayasan),
+ |                              'except' => 'foundation' (tampil untuk semua kecuali yayasan)
  */
 
 return [
 
     'resources' => [
 
+        // DIUBAH: slider kini mendukung link YouTube (field video_url)
         'slider' => [
             'label' => 'Slider Beranda',
             'model' => Slide::class,
@@ -33,10 +38,14 @@ return [
                 ['name' => 'type', 'label' => 'Jenis slide', 'type' => 'select', 'rules' => 'required|in:foto,video',
                     'options' => ['foto' => 'Foto', 'video' => 'Video']],
                 ['name' => 'image', 'label' => 'Foto', 'type' => 'image', 'button' => 'Pilih Foto',
-                    'help' => 'Pilih foto mendatar (lebar) agar tampil penuh.'],
-                ['name' => 'video', 'label' => 'Video', 'type' => 'video', 'max_kb' => 51200, 'button' => 'Pilih Video',
+                    'help' => 'Pilih foto mendatar (lebar) agar tampil penuh. Untuk slide video, foto ini dipakai sebagai gambar pembuka (boleh dikosongkan).'],
+                ['name' => 'video_url', 'label' => 'Link video YouTube', 'type' => 'url',
+                    'rules' => ['nullable', 'url:https', 'max:255', 'regex:~(youtu\.be/|youtube\.com/)~i'],
                     'show_if' => ['type' => 'video'],
-                    'help' => 'Video diputar tanpa suara. Foto di atas dipakai sebagai gambar pembuka (boleh dikosongkan).'],
+                    'help' => 'Tempel link YouTube, contoh: https://www.youtube.com/watch?v=xxxxxxxxxxx. Cara termudah, tanpa upload. Jika diisi, link ini dipakai dan berkas video di bawah diabaikan.'],
+                ['name' => 'video', 'label' => 'Atau unggah berkas video', 'type' => 'video', 'max_kb' => 51200, 'button' => 'Pilih Video',
+                    'show_if' => ['type' => 'video'],
+                    'help' => 'Opsional. Hanya dipakai bila link YouTube kosong. Video diputar tanpa suara. MP4/WebM, maks. 50 MB.'],
                 ['name' => 'sort', 'label' => 'Urutan', 'type' => 'number', 'rules' => 'nullable|integer|min:0|max:9999', 'default' => 0,
                     'help' => 'Angka kecil tampil lebih dulu.'],
             ],
@@ -121,6 +130,27 @@ return [
             ],
         ],
 
+        'tonggak' => [
+            'label' => 'Tonggak Sejarah',
+            'model' => Milestone::class,
+            'dir' => 'milestones',
+            'roles' => ['super_admin', 'admin'],
+            'columns' => ['year' => 'Tahun', 'title' => 'Judul', 'sort' => 'Urutan'],
+            'order' => ['sort', 'asc'],
+            'fields' => [
+                ['name' => 'year', 'label' => 'Tahun', 'type' => 'text', 'rules' => 'required|string|max:20',
+                    'help' => 'Contoh: 2012 atau 2013-2014.'],
+                ['name' => 'title', 'label' => 'Judul', 'type' => 'text', 'rules' => 'required|string|max:150',
+                    'help' => 'Contoh: Berdiri dengan program TPA.'],
+                ['name' => 'description', 'label' => 'Keterangan singkat', 'type' => 'textarea', 'rows' => 3,
+                    'rules' => 'nullable|string|max:1000'],
+                ['name' => 'photo', 'label' => 'Foto (opsional)', 'type' => 'image', 'button' => 'Pilih Foto',
+                    'help' => 'Disarankan foto mendatar. Boleh dikosongkan.'],
+                ['name' => 'sort', 'label' => 'Urutan', 'type' => 'number', 'rules' => 'nullable|integer|min:0|max:9999', 'default' => 0,
+                    'help' => 'Angka kecil tampil lebih dulu. Isi 1, 2, 3, dst. sesuai urutan kejadian.'],
+            ],
+        ],
+
         'keunggulan' => [
             'label' => 'Keunggulan Sekolah',
             'model' => Advantage::class,
@@ -133,6 +163,26 @@ return [
                 ['name' => 'title', 'label' => 'Judul', 'type' => 'text', 'rules' => 'required|string|max:150'],
                 ['name' => 'description', 'label' => 'Deskripsi', 'type' => 'textarea', 'rules' => 'nullable|string|max:1000'],
                 ['name' => 'sort', 'label' => 'Urutan', 'type' => 'number', 'rules' => 'nullable|integer|min:0|max:9999', 'default' => 0],
+            ],
+        ],
+
+        // BARU: modul Fasilitas Sekolah
+        'fasilitas' => [
+            'label' => 'Fasilitas Sekolah',
+            'model' => Facility::class,
+            'dir' => 'facilities',
+            'roles' => ['super_admin', 'admin'],
+            'columns' => ['name' => 'Nama', 'sort' => 'Urutan'],
+            'order' => ['sort', 'asc'],
+            'fields' => [
+                ['name' => 'name', 'label' => 'Nama fasilitas', 'type' => 'text', 'rules' => 'required|string|max:150',
+                    'help' => 'Contoh: Perpustakaan, Laboratorium, Masjid.'],
+                ['name' => 'description', 'label' => 'Keterangan singkat', 'type' => 'textarea', 'rows' => 3,
+                    'rules' => 'nullable|string|max:300'],
+                ['name' => 'image', 'label' => 'Foto', 'type' => 'image', 'button' => 'Pilih Foto', 'required_on_create' => true,
+                    'help' => 'Foto mendatar atau tegak sama-sama bisa, letakkan objek utama di tengah. Maks. 2 MB.'],
+                ['name' => 'sort', 'label' => 'Urutan', 'type' => 'number', 'rules' => 'nullable|integer|min:0|max:9999', 'default' => 0,
+                    'help' => 'Angka kecil tampil lebih dulu.'],
             ],
         ],
 
@@ -158,15 +208,30 @@ return [
             ['name' => 'tagline', 'label' => 'Judul beranda', 'type' => 'text', 'rules' => 'nullable|string|max:200',
                 'help' => 'Kalimat besar di bagian atas beranda.'],
             ['name' => 'description', 'label' => 'Deskripsi singkat sekolah', 'type' => 'textarea', 'rows' => 3, 'rules' => 'nullable|string|max:1000'],
+            // DIUBAH: video profil tidak dipakai di yayasan, hanya untuk jenjang sekolah
+            ['name' => 'video_url', 'label' => 'Video profil (link YouTube)', 'type' => 'url',
+                'rules' => ['nullable', 'url:https', 'max:255', 'regex:~(youtu\.be/|youtube\.com/)~i'],
+                'except' => 'foundation',
+                'help' => 'Tempel link video YouTube. Kosongkan bila tidak ada video.'],
             ['name' => 'logo', 'label' => 'Logo', 'type' => 'image'],
             ['name' => 'primary_color', 'label' => 'Warna utama', 'type' => 'color', 'rules' => ['required', 'regex:/^#[0-9a-fA-F]{6}$/']],
-            ['name' => 'foundation_name', 'label' => 'Nama yayasan (untuk footer)', 'type' => 'text', 'rules' => 'nullable|string|max:150'],
-            ['name' => 'founded_year', 'label' => 'Tahun berdiri', 'type' => 'number', 'rules' => 'nullable|integer|min:1800|max:2100'],
+            ['name' => 'founded_year', 'label' => 'Tahun berdiri', 'type' => 'number', 'rules' => 'nullable|integer|min:1800|max:2100',
+                'help' => 'Dipakai untuk kartu statistik di halaman Sejarah.'],
         ],
 
-        'Kepala Sekolah / Ketua PAUD' => [
+        // BARU: hanya tampil untuk yayasan
+        'Tentang Yayasan' => [
+            ['name' => 'about_photo', 'label' => 'Foto Tentang Yayasan', 'type' => 'image', 'button' => 'Pilih Foto',
+                'only' => 'foundation',
+                'help' => 'Disarankan foto mendatar (4:3), misalnya gedung atau kegiatan yayasan. Tampil di kiri bagian Tentang Yayasan di beranda portal.'],
+            ['name' => 'about_text', 'label' => 'Teks Tentang Yayasan', 'type' => 'textarea', 'rows' => 8,
+                'rules' => 'nullable|string|max:3000', 'only' => 'foundation',
+                'help' => 'Cukup 2 sampai 3 paragraf pendek. Pisahkan paragraf dengan baris kosong.'],
+        ],
+
+        'Kepala Sekolah' => [
             ['name' => 'head_title', 'label' => 'Jabatan', 'type' => 'text', 'rules' => 'required|string|max:100',
-                'help' => 'Contoh: Kepala Sekolah, Ketua PAUD.'],
+                'help' => 'Contoh: Kepala Sekolah.'],
             ['name' => 'head_name', 'label' => 'Nama', 'type' => 'text', 'rules' => 'nullable|string|max:150'],
             ['name' => 'head_photo', 'label' => 'Foto', 'type' => 'image',
                 'help' => 'Disarankan foto potret (tegak), tampil di bagian Sambutan.'],
@@ -174,7 +239,8 @@ return [
         ],
 
         'Profil' => [
-            ['name' => 'history', 'label' => 'Sejarah', 'type' => 'textarea', 'rows' => 8, 'rules' => 'nullable|string|max:10000'],
+            ['name' => 'history', 'label' => 'Sejarah (cerita singkat)', 'type' => 'textarea', 'rows' => 8, 'rules' => 'nullable|string|max:10000',
+                'help' => 'Tampil di bawah garis waktu. Pisahkan paragraf dengan baris kosong. Tonggak per tahun diisi di menu Tonggak Sejarah.'],
             ['name' => 'vision', 'label' => 'Visi', 'type' => 'textarea', 'rows' => 3, 'rules' => 'nullable|string|max:1000'],
             ['name' => 'mission', 'label' => 'Misi', 'type' => 'textarea', 'rows' => 6, 'rules' => 'nullable|string|max:3000',
                 'help' => 'Satu misi per baris.'],

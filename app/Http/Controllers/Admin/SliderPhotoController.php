@@ -7,6 +7,7 @@ use App\Models\School;
 use App\Models\SliderPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class SliderPhotoController extends Controller
 {
@@ -26,21 +27,28 @@ class SliderPhotoController extends Controller
         $this->authorizeSchool($request, $school);
 
         if ($school->sliderPhotos()->count() >= $this->max()) {
-            return back()->withErrors(['image' => 'Maksimal ' . $this->max() . ' foto. Hapus salah satu dulu.']);
+            return back()->withErrors(['image' => 'Maksimal ' . $this->max() . ' item. Hapus salah satu dulu.']);
         }
 
         $data = $request->validate([
-            'image'   => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . config('school.slider.max_size_kb')],
-            'caption' => ['nullable', 'string', 'max:120'],
+            'image'     => ['nullable', 'required_without:video_url', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . config('school.slider.max_size_kb')],
+            'video_url' => ['nullable', 'required_without:image', 'url', 'max:255', 'regex:~(youtu\.be/|youtube\.com/)~'],
+            'caption'   => ['nullable', 'string', 'max:120'],
         ], $this->messages());
 
-        $school->sliderPhotos()->create([
-            'image'      => $request->file('image')->store('slider', 'public'),
+        $photo = new SliderPhoto([
             'caption'    => $data['caption'] ?? null,
+            'video_url'  => $data['video_url'] ?? null,
             'sort_order' => (int) $school->sliderPhotos()->max('sort_order') + 1,
         ]);
 
-        return back()->with('ok', 'Foto slider berhasil ditambahkan.');
+        if ($request->hasFile('image')) {
+            $photo->image = $request->file('image')->store('slider', 'public');
+        }
+
+        $school->sliderPhotos()->save($photo);
+
+        return back()->with('ok', 'Slider berhasil ditambahkan.');
     }
 
     public function update(Request $request, School $school, SliderPhoto $photo)
@@ -50,22 +58,33 @@ class SliderPhotoController extends Controller
 
         $data = $request->validate([
             'caption'    => ['nullable', 'string', 'max:120'],
+            'video_url'  => ['nullable', 'url', 'max:255', 'regex:~(youtu\.be/|youtube\.com/)~'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:99'],
             'image'      => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . config('school.slider.max_size_kb')],
         ], $this->messages());
 
+        // Harus tetap punya minimal satu: foto atau link YouTube.
+        if (! $request->hasFile('image') && ! $photo->image && empty($data['video_url'])) {
+            throw ValidationException::withMessages([
+                'video_url' => 'Isi foto atau link YouTube.',
+            ]);
+        }
+
         if ($request->hasFile('image')) {
-            Storage::disk('public')->delete($photo->image);
+            if ($photo->image) {
+                Storage::disk('public')->delete($photo->image);
+            }
             $photo->image = $request->file('image')->store('slider', 'public');
         }
 
         $photo->fill([
             'caption'    => $data['caption'] ?? null,
+            'video_url'  => $data['video_url'] ?? null,
             'sort_order' => $data['sort_order'],
             'is_active'  => $request->boolean('is_active'),
         ])->save();
 
-        return back()->with('ok', 'Foto slider diperbarui.');
+        return back()->with('ok', 'Slider diperbarui.');
     }
 
     public function destroy(Request $request, School $school, SliderPhoto $photo)
@@ -73,10 +92,12 @@ class SliderPhotoController extends Controller
         $this->authorizeSchool($request, $school);
         abort_unless($photo->school_id === $school->id, 404);
 
-        Storage::disk('public')->delete($photo->image);
+        if ($photo->image) {
+            Storage::disk('public')->delete($photo->image);
+        }
         $photo->delete();
 
-        return back()->with('ok', 'Foto slider dihapus.');
+        return back()->with('ok', 'Slider dihapus.');
     }
 
     private function max(): int
@@ -84,11 +105,6 @@ class SliderPhotoController extends Controller
         return (int) config('school.slider.max_photos', 3);
     }
 
-    /**
-     * super_admin boleh semua sekolah, admin hanya sekolahnya sendiri,
-     * operator tidak boleh mengubah slider.
-     * Sesuaikan "role" dan "school_id" dengan nama kolom di tabel users Anda.
-     */
     private function authorizeSchool(Request $request, School $school): void
     {
         $user = $request->user();
@@ -108,10 +124,13 @@ class SliderPhotoController extends Controller
     private function messages(): array
     {
         return [
-            'image.required' => 'Pilih foto terlebih dahulu.',
-            'image.image'    => 'File harus berupa gambar.',
-            'image.mimes'    => 'Format yang diizinkan: JPG, PNG, WEBP.',
-            'image.max'      => 'Ukuran foto maksimal 3 MB.',
+            'image.required_without'     => 'Pilih foto atau isi link YouTube.',
+            'video_url.required_without' => 'Pilih foto atau isi link YouTube.',
+            'image.image'                => 'File harus berupa gambar.',
+            'image.mimes'                => 'Format yang diizinkan: JPG, PNG, WEBP.',
+            'image.max'                  => 'Ukuran foto maksimal 3 MB.',
+            'video_url.url'              => 'Link tidak valid.',
+            'video_url.regex'            => 'Link harus dari YouTube (youtube.com atau youtu.be).',
         ];
     }
 }

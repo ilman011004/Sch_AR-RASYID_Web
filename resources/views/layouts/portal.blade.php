@@ -22,8 +22,108 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')
     <style>:root { --primary: {{ $foundation->safeColor() }}; }</style>
+
+    {{-- Navbar transparan di atas hero (hanya halaman yang memakai @section('body_class', 'hero-page')) --}}
+    <style>
+        /* Halaman biasa: pembungkus tidak mengubah tata letak, header tetap sticky seperti semula */
+        .site-top { display: contents; }
+
+        /* Halaman dengan hero: topbar + navbar melayang di atas gambar */
+        .hero-page .site-top { display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
+
+        .hero-page .topbar {
+            background: transparent; color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, .22);
+            max-height: 80px; overflow: hidden;
+            transition: max-height .3s ease, opacity .25s ease, border-color .25s ease;
+        }
+        .hero-page .topbar a { color: #fff; }
+
+        .hero-page .site-header {
+            position: relative;
+            background: transparent;
+            border-bottom-color: transparent;
+            box-shadow: none;
+            -webkit-backdrop-filter: none; backdrop-filter: none;
+            transition: background .3s ease, box-shadow .3s ease, border-color .3s ease;
+        }
+
+        /* Setelah di-scroll: navbar putih agak transparan, topbar disembunyikan */
+        .hero-page .site-top.scrolled .topbar { max-height: 0; opacity: 0; border-bottom-width: 0; }
+        .hero-page .site-top.scrolled .site-header {
+            background: rgba(255, 255, 255, .86);
+            -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+            border-bottom-color: var(--line);
+            box-shadow: 0 6px 24px rgba(16, 24, 40, .08);
+        }
+
+        /* Saat transparan: logo teks dan tombol menu berwarna putih */
+        .hero-page .site-top:not(.scrolled) .brand-text b,
+        .hero-page .site-top:not(.scrolled) .brand-text small { color: #fff; }
+        .hero-page .site-top:not(.scrolled) .brand-text small { opacity: .85; }
+        .hero-page .site-top:not(.scrolled) .nav-toggle { color: #fff; border-color: rgba(255, 255, 255, .55); }
+
+        /* Hero dimulai dari tepi atas layar, beri ruang agar teks tidak tertutup navbar */
+        .hero-page .hero { padding-top: 7rem; }
+
+        @media (min-width: 961px) {
+            .hero-page .hero { padding-top: 9.5rem; }
+
+            .hero-page .site-top:not(.scrolled) .nav > a,
+            .hero-page .site-top:not(.scrolled) .nav > .dropdown > button { color: #fff; }
+
+            .hero-page .site-top:not(.scrolled) .nav > a:hover,
+            .hero-page .site-top:not(.scrolled) .nav > .dropdown > button:hover {
+                background: rgba(255, 255, 255, .16); color: #fff;
+            }
+            .hero-page .site-top:not(.scrolled) .nav > a.active,
+            .hero-page .site-top:not(.scrolled) .nav > .dropdown > button.active {
+                background: rgba(255, 255, 255, .22); color: #fff;
+            }
+        }
+    </style>
+
+    {{-- Aksen hijau permanen (tidak ikut warna utama dari pengaturan admin). Ubah --accent untuk mengganti hijaunya. --}}
+    <style>
+        :root { --accent: #22a06b; --accent-2: #f5b800; }
+
+        /* Tombol utama di hero */
+        .hero .btn:not(.btn-outline) { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        /* Menu aktif: garis hijau di bawah */
+        .nav > a.active, .nav > .dropdown > button.active { box-shadow: inset 0 -3px 0 var(--accent); }
+        .site-top.scrolled .nav > a:hover,
+        .site-top.scrolled .nav > .dropdown > button:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, #fff); }
+        .site-top.scrolled .nav > a.active,
+        .site-top.scrolled .nav > .dropdown > button.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, #fff); }
+        .dropdown-menu a:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, #fff); }
+
+        /* Judul bagian, label, tautan */
+        .kicker { color: var(--accent); }
+        .sec-head h2::after, .section-head h2::after { background: var(--accent); }
+        .more, .section-head a { color: var(--accent); }
+        .notice-list a:hover { color: var(--accent); }
+
+        /* Kartu dan kotak */
+        /* Kotak akses cepat: aksen kuning (ubah --accent-2 untuk mengganti kuningnya) */
+        .quick a { border-top: 4px solid var(--accent-2); }
+        .quick .qi { background: color-mix(in srgb, var(--accent-2) 22%, #fff); }
+        .quick a:hover { border-color: var(--accent-2); }
+        .panel-box { border-top: 4px solid var(--accent); }
+        .portal-card { border-top-color: var(--accent); }
+        .welcome-photo::before { background: color-mix(in srgb, var(--accent) 22%, #fff); }
+        .welcome-sign { border-left-color: var(--accent); }
+        ul.check li::before { background: var(--accent); }
+        ol.steps li::before { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, #fff); }
+
+        /* Footer */
+        .site-footer { border-top: 6px solid var(--accent); }
+        .site-footer h4 { color: var(--accent); }
+    </style>
 </head>
-<body>
+<body class="@yield('body_class')">
+
+<div class="site-top" data-site-top>
 
 <div class="topbar">
     <div class="wrap">
@@ -94,6 +194,8 @@
     </div>
 </header>
 
+</div>
+
 <main>
     @yield('content')
 </main>
@@ -157,11 +259,20 @@
     (function () {
         var btn = document.querySelector('[data-nav-toggle]');
         var nav = document.querySelector('[data-nav]');
-        if (!btn || !nav) return;
-        btn.addEventListener('click', function () {
-            var open = nav.classList.toggle('open');
-            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
+        if (btn && nav) {
+            btn.addEventListener('click', function () {
+                var open = nav.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+        }
+
+        // Navbar transparan -> putih saat halaman di-scroll (hanya halaman hero)
+        var top = document.querySelector('[data-site-top]');
+        if (top && document.body.classList.contains('hero-page')) {
+            var onScroll = function () { top.classList.toggle('scrolled', window.scrollY > 40); };
+            onScroll();
+            window.addEventListener('scroll', onScroll, { passive: true });
+        }
     })();
 </script>
 </body>

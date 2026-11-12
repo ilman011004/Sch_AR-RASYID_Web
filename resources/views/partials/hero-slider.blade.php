@@ -1,24 +1,36 @@
-{{-- Latar hero berupa slider foto/video. Variabel: $slides. Kosong = tidak menampilkan apa pun. --}}
+{{-- Latar hero berupa slider foto/video/YouTube. Variabel: $slides. Kosong = tidak menampilkan apa pun. --}}
 @if ($slides->isNotEmpty())
 <style>
-    .hero:has(.hbg) { min-height: 620px; display: flex; align-items: center; background: #0b1f1c; }
+    .hero:has(.hbg) { min-height: clamp(620px, 100svh, 880px); display: flex; align-items: center; background: var(--primary); }
     .hero:has(.hbg) .hero-grid { grid-template-columns: 1fr; width: min(1160px, 100% - 2.5rem); }
-    .hero:has(.hbg) .hero-text { position: relative; z-index: 2; max-width: 720px; text-shadow: 0 2px 18px rgba(0, 0, 0, .35); }
+    .hero:has(.hbg) .hero-text { position: relative; z-index: 2; max-width: 720px; text-shadow: 0 2px 16px rgba(0, 0, 0, .35); }
+    .hero:has(.hbg) .hero-text h1,
+    .hero:has(.hbg) .hero-text .lead { color: #fff !important; }
     .hero:has(.hbg) .btn { text-shadow: none; }
 
-    .hbg { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #0b1f1c; }
+    .hbg { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: var(--primary); }
     .hbg-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1s ease; }
     .hbg-slide.on { opacity: 1; }
     .hbg-slide img, .hbg-slide video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
     .hbg-slide img { transform: scale(1); transition: transform 8s ease-out; }
     .hbg-slide.on img { transform: scale(1.07); }
 
-    /* Lapisan gelap supaya teks terbaca */
+    /* Thumbnail cadangan untuk slide YouTube: tanpa efek zoom */
+    .hbg-slide img.yt-thumb { transform: none; transition: none; }
+    .hbg-slide.on img.yt-thumb { transform: none; }
+
+    /* iframe YouTube dibuat "cover" seperti object-fit: cover */
+    .hbg-slide iframe {
+        position: absolute; top: 50%; left: 50%; border: 0; pointer-events: none;
+        width: max(100%, 177.78vh); height: max(100%, 56.25vw);
+        transform: translate(-50%, -50%);
+    }
+
+    /* Gelapkan foto secara rata (tanpa gradasi) agar teks dan navbar terbaca.
+       Ubah angka 50% di bawah: makin besar = makin gelap, makin kecil = makin terang. */
     .hbg::after {
         content: ""; position: absolute; inset: 0; pointer-events: none;
-        background:
-            linear-gradient(90deg, rgba(0, 0, 0, .74) 0%, rgba(0, 0, 0, .48) 55%, rgba(0, 0, 0, .22) 100%),
-            linear-gradient(0deg, color-mix(in srgb, var(--primary) 45%, transparent), transparent 55%);
+        background: color-mix(in srgb, color-mix(in srgb, var(--primary) 40%, #000) 50%, transparent);
     }
 
     .hbg-btn {
@@ -52,25 +64,47 @@
 
 <div class="hbg" data-hbg>
     @foreach ($slides as $s)
+        @php
+            $yt     = method_exists($s, 'youtubeId') ? $s->youtubeId() : null;
+            $stype  = $s->type ?? null;
+            $svid   = $s->video ?? null;
+            $stitle = $s->title ?? null;
+            $scap   = $s->caption ?? null;
+            $simg   = $s->image ?? null;
+        @endphp
         <div class="hbg-slide {{ $loop->first ? 'on' : '' }}">
-            @if ($s->type === 'video' && $s->video)
+            @if ($yt)
+                {{-- Gambar cadangan: tampil sampai video YouTube termuat. Kalau foto diunggah, foto itu yang dipakai. --}}
+                @if ($simg)
+                    <img class="yt-thumb" src="{{ asset('storage/'.$simg) }}" alt="" aria-hidden="true">
+                @else
+                    <img class="yt-thumb" src="https://i.ytimg.com/vi/{{ $yt }}/hqdefault.jpg" alt="" aria-hidden="true">
+                @endif
+
+                <iframe data-yt
+                        data-src="https://www.youtube-nocookie.com/embed/{{ $yt }}?autoplay=1&mute=1&controls=0&playsinline=1&rel=0&modestbranding=1&enablejsapi=1{{ $slides->count() === 1 ? '&loop=1&playlist='.$yt : '' }}"
+                        allow="autoplay; encrypted-media"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        title="{{ $stitle ?: 'Video '.$loop->iteration }}"></iframe>
+            @elseif ($stype === 'video' && $svid)
                 <video muted playsinline preload="{{ $loop->first ? 'auto' : 'metadata' }}"
-                       @if ($s->image) poster="{{ asset('storage/'.$s->image) }}" @endif
+                       @if ($simg) poster="{{ asset('storage/'.$simg) }}" @endif
                        @if ($slides->count() === 1) loop @endif>
-                    <source src="{{ asset('storage/'.$s->video) }}">
+                    <source src="{{ asset('storage/'.$svid) }}">
                 </video>
-            @elseif ($s->image)
-                <img src="{{ asset('storage/'.$s->image) }}" alt="{{ $s->title ?: 'Foto '.$loop->iteration }}"
+            @elseif ($simg)
+                <img src="{{ asset('storage/'.$simg) }}" alt="{{ $stitle ?: ($scap ?: 'Foto '.$loop->iteration) }}"
                      @if (! $loop->first) loading="lazy" @endif>
             @endif
         </div>
     @endforeach
 
     @foreach ($slides as $s)
-        @if ($s->title || $s->caption)
+        @php $ct = $s->title ?? null; $cc = $s->caption ?? null; @endphp
+        @if ($ct || $cc)
             <div class="hbg-cap {{ $loop->first ? 'on' : '' }}" data-cap>
-                @if ($s->title)<b>{{ $s->title }}</b>@endif
-                @if ($s->caption)<span>{{ $s->caption }}</span>@endif
+                @if ($ct)<b>{{ $ct }}</b>@endif
+                @if ($cc)<span>{{ $cc }}</span>@endif
             </div>
         @else
             <div class="hbg-cap" data-cap></div>
@@ -99,14 +133,23 @@
             function schedule() {
                 clearTimeout(timer);
                 if (n < 2) return;
-                // Video: pindah saat video selesai (cadangan 45 detik). Foto: 5,5 detik.
-                timer = setTimeout(next, slides[i].querySelector('video') ? 45000 : 5500);
+                // Video/YouTube: pindah saat selesai (cadangan 45 detik). Foto: 5,5 detik.
+                var hasMedia = slides[i].querySelector('video, [data-yt]');
+                timer = setTimeout(next, hasMedia ? 45000 : 5500);
             }
 
             function show(k) {
                 i = (k + n) % n;
                 slides.forEach(function (s, j) {
                     s.classList.toggle('on', j === i);
+
+                    var f = s.querySelector('[data-yt]');
+                    if (f) {
+                        if (j === i) { if (!f.getAttribute('src')) f.setAttribute('src', f.dataset.src); }
+                        else f.removeAttribute('src'); // hentikan video yang tidak tampil
+                        return;
+                    }
+
                     var v = s.querySelector('video');
                     if (!v) return;
                     if (j === i) {
@@ -127,6 +170,20 @@
             slides.forEach(function (s) {
                 var v = s.querySelector('video');
                 if (v && n > 1) v.addEventListener('ended', next);
+
+                var f = s.querySelector('[data-yt]');
+                if (f && n > 1) f.addEventListener('load', function () {
+                    // minta YouTube mengirim event status pemutaran
+                    f.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*');
+                });
+            });
+
+            // YouTube selesai diputar (state 0) -> slide berikutnya
+            window.addEventListener('message', function (e) {
+                if (String(e.origin).indexOf('youtube') < 0) return;
+                var d; try { d = JSON.parse(e.data); } catch (_) { return; }
+                var f = slides[i].querySelector('[data-yt]');
+                if (d && d.event === 'onStateChange' && d.info === 0 && f && e.source === f.contentWindow) next();
             });
 
             var prev = root.querySelector('[data-prev]');

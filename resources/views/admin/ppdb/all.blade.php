@@ -3,13 +3,27 @@
 @section('title', 'Semua Pendaftar')
 
 @section('content')
-<div class="page-head">
-    <h1>Semua Pendaftar <small>PAUD sampai SMA</small></h1>
-    <a class="btn btn-sm" href="{{ route('admin.ppdb.all.export', request()->query()) }}">Unduh CSV semua jenjang</a>
+<div class="admin-page-header">
+    <div class="admin-page-header-info">
+        <div class="admin-page-icon" style="background: rgba(20, 184, 166, 0.16); color: #14b8a6;">
+            🎓
+        </div>
+        <div>
+            <div class="admin-page-title-row">
+                <h1>Semua Pendaftar PPDB</h1>
+                <span class="badge-total">{{ $items->total() }} Calon Siswa</span>
+            </div>
+            <p class="admin-page-desc">Rekapitulasi seluruh jenjang sekolah yayasan (PAUD sampai SMA)</p>
+        </div>
+    </div>
+    <a class="btn btn-add" href="{{ route('admin.ppdb.all.export', request()->query()) }}">
+        <span>⬇ Unduh CSV Semua Jenjang</span>
+    </a>
 </div>
 
 {{-- Ringkasan per sekolah --}}
-<table class="table" style="margin-bottom:1.4rem">
+<div class="table-wrapper-card" style="margin-bottom:1.6rem">
+<table class="table">
     <thead>
         <tr>
             <th>Sekolah</th>
@@ -58,6 +72,7 @@
         </tr>
     </tbody>
 </table>
+</div>
 
 {{-- Filter --}}
 <form method="get" class="filter-bar">
@@ -90,6 +105,7 @@
     <a class="btn btn-sm" style="background:#6b7280" href="{{ route('admin.ppdb.all') }}">Reset</a>
 </form>
 
+<div class="table-wrapper-card">
 <table class="table">
     <thead>
         <tr>
@@ -101,15 +117,15 @@
             <th>Berkas</th>
             <th>Status</th>
             <th>Daftar</th>
-            <th></th>
+            <th class="right">Aksi</th>
         </tr>
     </thead>
     <tbody>
         @forelse ($items as $r)
             <tr>
-                <td>{{ $r->school?->name ?? '-' }}</td>
-                <td>{{ $r->reg_number }}</td>
-                <td>{{ $r->student_name }}</td>
+                <td><strong>{{ $r->school?->name ?? '-' }}</strong></td>
+                <td><span class="pill-badge pill-neutral">{{ $r->reg_number }}</span></td>
+                <td><strong class="cell-title">{{ $r->student_name }}</strong></td>
                 <td>{{ $r->parent_name }}<br><small>{{ $r->parent_phone }}</small></td>
                 <td><span class="badge stage-{{ $r->stage }}">{{ $r->stage }}. {{ $r->stageLabel() }}</span></td>
                 <td>
@@ -123,13 +139,16 @@
                 </td>
                 <td><span class="badge s-{{ $r->status }}">{{ $r->statusLabel() }}</span></td>
                 <td>{{ $r->created_at->format('d/m/Y') }}</td>
-                <td class="actions"><a href="{{ route('admin.ppdb.show', $r->id) }}">Detail</a></td>
+                <td class="right actions-cell">
+                    <a class="btn-action-edit" href="{{ route('admin.ppdb.show', $r->id) }}">Detail →</a>
+                </td>
             </tr>
         @empty
-            <tr><td colspan="9" class="muted">Belum ada pendaftar.</td></tr>
+            <tr><td colspan="9" class="muted" style="text-align: center; padding: 2rem;">Belum ada pendaftar.</td></tr>
         @endforelse
     </tbody>
 </table>
+</div>
 
 @if ($items->hasPages())
     <div class="pager">

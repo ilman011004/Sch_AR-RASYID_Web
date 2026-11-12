@@ -1,6 +1,7 @@
 @extends('layouts.portal')
 
 @section('title', $foundation->name)
+@section('body_class', 'hero-page')
 
 @section('content')
 
@@ -8,8 +9,17 @@
 <section class="hero">
     <div class="wrap hero-grid {{ $slides->isEmpty() ? 'no-slider' : '' }}">
         <div class="hero-text">
-            <p class="eyebrow">Yayasan Pendidikan</p>
-            <h1>{{ $foundation->tagline ?: $foundation->name }}</h1>
+            @php
+                $title = $foundation->tagline ?: $foundation->name;
+                $len = mb_strlen($title);
+                // Makin panjang judul, makin kecil ukurannya
+                $size = $len > 60 ? 'clamp(1.6rem, 3vw, 2.4rem)'
+                      : ($len > 35 ? 'clamp(2rem, 4vw, 3.2rem)'
+                      : 'clamp(2.4rem, 5vw, 4rem)');
+                // Tiap kata dikunci agar "AR-Rasyid" tidak terpotong jadi "AR-" dan "Rasyid"
+                $titleHtml = preg_replace('/(\S+)/u', '<span style="white-space:nowrap">$1</span>', e($title));
+            @endphp
+            <h1 style="font-size: {{ $size }}; text-wrap: balance;">{!! $titleHtml !!}</h1>
             @if ($foundation->description)
                 <p class="lead">{{ $foundation->description }}</p>
             @endif
@@ -45,15 +55,66 @@
     </div>
 </div>
 
-{{-- Sambutan ketua yayasan --}}
+{{-- Sambutan ketua kini tampil di bagian Pendiri dan Ketua (lebih bawah). Untuk menampilkan sambutan lengkap lagi, aktifkan baris berikut:
 @include('partials.welcome', ['entity' => $foundation])
+--}}
+
+{{-- Tentang Yayasan: foto di kiri, teks di kanan. Hanya tampil bila teks atau fotonya sudah diisi di admin --}}
+@if (filled($foundation->about_text) || filled($foundation->about_photo))
+<style>
+    .about { background: #fff; }
+    .about-grid {
+        display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+        gap: clamp(2rem, 5vw, 4.5rem); align-items: center;
+    }
+    .about-grid.no-photo { grid-template-columns: minmax(0, 1fr); max-width: 760px; margin-inline: auto; }
+    .about-media { position: relative; }
+    .about-media::before {
+        content: ""; position: absolute; z-index: 0; inset: 16px -16px -16px 16px; border-radius: 26px;
+        border: 2px solid var(--accent-2, #f5b800);
+    }
+    .about-media img {
+        position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover;
+        border-radius: 22px; box-shadow: 0 30px 60px -28px rgba(16, 24, 40, .45);
+    }
+    .about-text .kicker { display: inline-block; margin-bottom: .6rem; }
+    .about-text h2 { margin: 0 0 1.1rem; text-wrap: balance; }
+    .about-text p { margin: 0 0 1rem; line-height: 1.75; text-wrap: pretty; overflow-wrap: anywhere; }
+    .about-text .btn { margin-top: .6rem; }
+    @media (max-width: 900px) {
+        .about-grid { grid-template-columns: 1fr; }
+        .about-media { margin: 0 16px 16px 0; }
+    }
+</style>
+
+<section class="section about">
+    <div class="wrap about-grid {{ filled($foundation->about_photo) ? '' : 'no-photo' }}">
+        @if (filled($foundation->about_photo))
+            <div class="about-media">
+                <img src="{{ asset('storage/'.$foundation->about_photo) }}" alt="Tentang {{ $foundation->name }}" loading="lazy">
+            </div>
+        @endif
+
+        <div class="about-text">
+            <span class="kicker">Tentang Yayasan</span>
+            <h2>Mengenal {{ $foundation->name }}</h2>
+            @foreach (preg_split('/\R{2,}/', trim((string) $foundation->about_text)) as $para)
+                @if (trim($para) !== '')
+                    <p>{!! nl2br(e($para)) !!}</p>
+                @endif
+            @endforeach
+            <a class="btn btn-outline" href="{{ route('portal.profile', 'sejarah') }}">Baca profil lengkap</a>
+        </div>
+    </div>
+</section>
+@endif
 
 {{-- Visi & misi --}}
 @if ($foundation->vision || $foundation->missionList())
 <section class="section alt">
     <div class="wrap">
         <div class="sec-head">
-            <span class="kicker">Tentang Kami</span>
+            <span class="kicker">Arah Kami</span>
             <h2>Visi dan Misi</h2>
         </div>
         @include('partials.vm', ['entity' => $foundation])
@@ -95,6 +156,9 @@
         </div>
     </div>
 </section>
+
+{{-- Pendiri (permanen di kode) dan Ketua Yayasan (dari database): partials/founder.blade.php --}}
+@include('partials.founder', ['foundation' => $foundation])
 
 {{-- SPMB + pengumuman --}}
 @php $openSchools = $jenjang->filter(fn ($s) => $s->is_active && $s->ppdbIsOpen()); @endphp

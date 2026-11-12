@@ -45,12 +45,12 @@
             @endif
         @endforeach
 
-        @if ($canManage)
-            <a href="{{ route('admin.ppdb.index') }}" @class(['active' => request()->routeIs('admin.ppdb.index', 'admin.ppdb.show')])>Pendaftar PPDB</a>
+        @if ($canManage && ! $isSuper)
+            <a href="{{ route('admin.ppdb.index') }}" @class(['active' => request()->routeIs('admin.ppdb.index') || (! $isSuper && request()->routeIs('admin.ppdb.show'))])>Pendaftar PPDB</a>
         @endif
 
         @if ($isSuper)
-            <a href="{{ route('admin.ppdb.all') }}" @class(['active' => request()->routeIs('admin.ppdb.all*')])>Semua Pendaftar (Yayasan)</a>
+            <a href="{{ route('admin.ppdb.all') }}" @class(['active' => request()->routeIs('admin.ppdb.all*') || ($isSuper && request()->routeIs('admin.ppdb.show'))])>Semua Pendaftar (Yayasan)</a>
         @endif
 
         @if ($canManage)
@@ -96,6 +96,32 @@
 
     @yield('content')
 </main>
+
+{{-- Pengaturan Sekolah: sembunyikan field yang tidak relevan untuk sekolah yang sedang dikelola.
+     Yayasan: tanpa video profil. Jenjang sekolah: tanpa "Tentang Yayasan". --}}
+@php
+    $hiddenFields = $currentSchool->isFoundation()
+        ? ['video_url']
+        : ['about_photo', 'about_text'];
+@endphp
+@if (request()->routeIs('admin.settings*'))
+<script>
+    (function () {
+        @json($hiddenFields).forEach(function (name) {
+            var el = document.querySelector('[name="' + name + '"]');
+            if (!el) return;
+            var box = el.closest('label') || el.parentElement;
+            // sembunyikan juga teks bantuan yang tepat di bawahnya, bila ada di luar label
+            var next = box.nextElementSibling;
+            if (next && /^(SMALL|P)$/.test(next.tagName) && !next.querySelector('input, select, textarea')) {
+                next.style.display = 'none';
+            }
+            box.style.display = 'none';
+            el.disabled = true; // tidak ikut terkirim saat form disimpan
+        });
+    })();
+</script>
+@endif
 
 </body>
 </html>

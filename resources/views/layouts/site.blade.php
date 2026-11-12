@@ -11,12 +11,22 @@
         'ekstrakurikuler' => 'Ekstrakurikuler',
     ];
     $socials = ['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'];
+
+    // Render isi halaman lebih dulu supaya bisa dicek: halaman yang punya banner judul (.page-title)
+    // otomatis memakai navbar transparan yang sama seperti beranda. Tidak perlu mengubah tiap halaman.
+    $pageContent = $__env->yieldContent('content');
+    $bodyClass = trim($__env->yieldContent('body_class'));
+    if (! str_contains($bodyClass, 'hero-page') && str_contains($pageContent, 'class="page-title"')) {
+        $bodyClass = trim($bodyClass.' hero-page');
+    }
 @endphp
 <!doctype html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- BARU: kirim asal situs ke YouTube agar embed video tidak ditolak (Error 153) --}}
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>@yield('title', $school->name)</title>
     <meta name="description" content="@yield('description', \Illuminate\Support\Str::limit((string) $school->description, 150))">
     @if ($school->logoUrl())
@@ -27,8 +37,147 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')
     <style>:root { --primary: {{ $school->safeColor() }}; }</style>
+
+    {{-- Navbar transparan di atas hero / banner judul (kelas hero-page dipasang otomatis, lihat bagian atas file) --}}
+    <style>
+        /* Halaman biasa: pembungkus tidak mengubah tata letak, header tetap sticky seperti semula */
+        .site-top { display: contents; }
+
+        /* Halaman dengan hero atau banner judul: topbar + navbar melayang di atas gambar */
+        .hero-page .site-top { display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
+
+        .hero-page .topbar {
+            background: transparent; color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, .22);
+            max-height: 80px; overflow: hidden;
+            transition: max-height .3s ease, opacity .25s ease, border-color .25s ease;
+        }
+        .hero-page .topbar a { color: #fff; }
+
+        .hero-page .site-header {
+            position: relative;
+            background: transparent;
+            border-bottom-color: transparent;
+            box-shadow: none;
+            -webkit-backdrop-filter: none; backdrop-filter: none;
+            transition: background .3s ease, box-shadow .3s ease, border-color .3s ease;
+        }
+
+        /* Setelah di-scroll: navbar putih agak transparan, topbar disembunyikan */
+        .hero-page .site-top.scrolled .topbar { max-height: 0; opacity: 0; border-bottom-width: 0; }
+        .hero-page .site-top.scrolled .site-header {
+            background: rgba(255, 255, 255, .86);
+            -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+            border-bottom-color: var(--line);
+            box-shadow: 0 6px 24px rgba(16, 24, 40, .08);
+        }
+
+        /* Saat transparan: logo teks dan tombol menu berwarna putih */
+        .hero-page .site-top:not(.scrolled) .brand-text b,
+        .hero-page .site-top:not(.scrolled) .brand-text small { color: #fff; }
+        .hero-page .site-top:not(.scrolled) .brand-text small { opacity: .85; }
+        .hero-page .site-top:not(.scrolled) .nav-toggle { color: #fff; border-color: rgba(255, 255, 255, .55); }
+
+        /* Hero dimulai dari tepi atas layar, beri ruang agar teks tidak tertutup navbar */
+        .hero-page .hero { padding-top: 7rem; }
+
+        /* Banner judul halaman dalam (Profil, Program, Berita, dll.) */
+        .hero-page .page-title { position: relative; padding-top: 8rem; }
+        .hero-page .page-title::before {
+            content: ""; position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(180deg, rgba(10, 30, 45, .38), rgba(10, 30, 45, 0) 65%);
+        }
+        .hero-page .page-title > * { position: relative; z-index: 1; }
+
+        /* Motif bintang geometris Islami di banner judul (SVG ditanam langsung, tidak perlu file gambar) */
+        .page-title { position: relative; overflow: hidden; border-bottom: 4px solid var(--accent-2, #f5b800); }
+        .page-title::after {
+            content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='white' fill-opacity='.05' stroke='white' stroke-width='.9' stroke-opacity='.55'%3E%3Crect x='5.86' y='5.86' width='28.28' height='28.28'/%3E%3Crect x='5.86' y='5.86' width='28.28' height='28.28' transform='rotate(45 20 20)'/%3E%3C/g%3E%3Cg fill='none' stroke='white' stroke-width='.9' stroke-opacity='.5'%3E%3Ccircle cx='20' cy='20' r='4.5'/%3E%3Cpath d='M0 -4L4 0L0 4L-4 0ZM40 -4L44 0L40 4L36 0ZM0 36L4 40L0 44L-4 40ZM40 36L44 40L40 44L36 40Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 56px 56px;
+            opacity: .7;
+            /* motif samar di kiri (di belakang judul) dan makin jelas ke kanan */
+            -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, .22) 0%, #000 75%);
+            mask-image: linear-gradient(90deg, rgba(0, 0, 0, .22) 0%, #000 75%);
+        }
+        .page-title > * { position: relative; z-index: 1; }
+
+        @media (min-width: 961px) {
+            .hero-page .hero { padding-top: 9.5rem; }
+            .hero-page .page-title { padding-top: 9.5rem; }
+
+            .hero-page .site-top:not(.scrolled) .nav > a:not(.btn),
+            .hero-page .site-top:not(.scrolled) .nav > .dropdown > button { color: #fff; }
+
+            .hero-page .site-top:not(.scrolled) .nav > a:not(.btn):hover,
+            .hero-page .site-top:not(.scrolled) .nav > .dropdown > button:hover {
+                background: rgba(255, 255, 255, .16); color: #fff;
+            }
+            .hero-page .site-top:not(.scrolled) .nav > a.active,
+            .hero-page .site-top:not(.scrolled) .nav > .dropdown > button.active {
+                background: rgba(255, 255, 255, .22); color: #fff;
+            }
+        }
+    </style>
+
+    {{-- Warna aksen. Hijau (--accent) hanya untuk tombol ajakan seperti "Pendaftaran".
+         Elemen lain memakai biru tua (--ink) dan kuning (--accent-2). Ubah nilai di bawah untuk mengganti warna. --}}
+    <style>
+        :root { --accent: #2d8f6b; --accent-2: #f5b800; --ink: #24485c; }
+
+        /* Tombol utama di hero (satu-satunya blok hijau besar) */
+        .hero .btn:not(.btn-outline) { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        /* Menu aktif: garis kuning di bawah */
+        .nav > a.active, .nav > .dropdown > button.active { box-shadow: inset 0 -3px 0 var(--accent-2); }
+        .site-top.scrolled .nav > a:not(.btn):hover,
+        .site-top.scrolled .nav > .dropdown > button:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, #fff); }
+        .site-top.scrolled .nav > a.active,
+        .site-top.scrolled .nav > .dropdown > button.active { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, #fff); }
+        .dropdown-menu a:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 8%, #fff); }
+
+        /* Judul bagian, label, tautan */
+        .kicker { color: var(--ink); }
+        .sec-head h2::after, .section-head h2::after { background: var(--accent-2); }
+        .more, .section-head a { color: var(--ink); }
+        .notice-list a:hover { color: var(--ink); }
+
+        /* Kartu dan kotak */
+        /* Kotak akses cepat: aksen kuning (ubah --accent-2 untuk mengganti kuningnya) */
+        .quick a { border-top: 4px solid var(--accent-2); }
+        .quick .qi { background: color-mix(in srgb, var(--accent-2) 22%, #fff); }
+        .quick a:hover { border-color: var(--accent-2); }
+        .panel-box { border-top: 4px solid var(--ink); }
+        .portal-card { border-top-color: var(--ink); }
+        .welcome-photo::before { background: color-mix(in srgb, var(--accent-2) 28%, #fff); }
+        .welcome-sign { border-left-color: var(--accent-2); }
+        ul.check li::before { background: var(--ink); }
+        ol.steps li::before { color: var(--ink); background: color-mix(in srgb, var(--ink) 12%, #fff); }
+
+        /* Footer */
+        .site-footer { border-top: 6px solid var(--accent-2); }
+        .site-footer h4 { color: var(--accent-2); }
+    </style>
+
+    {{-- Tambahan khusus situs sekolah: tombol, pita pendaftaran, statistik, ikon --}}
+    <style>
+        .nav a.btn:not(.btn-outline) { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .cta-band { border-top: 6px solid var(--accent-2); }
+        .cta-band .btn { background: var(--accent-2); border-color: var(--accent-2); color: #3b2f00; }
+        .stat .num { color: var(--accent-2); }
+        .icon { background: color-mix(in srgb, var(--accent-2) 22%, #fff); }
+
+        @media (min-width: 961px) {
+            .hero-page .site-top:not(.scrolled) .nav > a.btn-outline { color: #fff; border-color: rgba(255, 255, 255, .75); }
+            .hero-page .site-top:not(.scrolled) .nav > a.btn-outline:hover { background: #fff; color: var(--primary); }
+            .hero-page .site-top:not(.scrolled) .nav-user span { color: #fff; }
+            .hero-page .site-top:not(.scrolled) .nav-user button { color: #fff; border-color: rgba(255, 255, 255, .75); }
+        }
+    </style>
 </head>
-<body>
+<body class="{{ $bodyClass }}">
+
+<div class="site-top" data-site-top>
 
 <div class="topbar">
     <div class="wrap">
@@ -103,8 +252,10 @@
     </div>
 </header>
 
+</div>
+
 <main>
-    @yield('content')
+    {!! $pageContent !!}
 </main>
 
 @if ($school->ppdbIsOpen() && ! request()->routeIs('ppdb*'))
@@ -185,11 +336,20 @@
     (function () {
         var btn = document.querySelector('[data-nav-toggle]');
         var nav = document.querySelector('[data-nav]');
-        if (!btn || !nav) return;
-        btn.addEventListener('click', function () {
-            var open = nav.classList.toggle('open');
-            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
+        if (btn && nav) {
+            btn.addEventListener('click', function () {
+                var open = nav.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            });
+        }
+
+        // Navbar transparan -> putih saat halaman di-scroll (halaman hero dan banner judul)
+        var top = document.querySelector('[data-site-top]');
+        if (top && document.body.classList.contains('hero-page')) {
+            var onScroll = function () { top.classList.toggle('scrolled', window.scrollY > 40); };
+            onScroll();
+            window.addEventListener('scroll', onScroll, { passive: true });
+        }
     })();
 </script>
 </body>

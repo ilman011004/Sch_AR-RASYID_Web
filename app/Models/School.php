@@ -157,6 +157,15 @@ class School extends Model
         return $this->structure_image ? asset('storage/'.$this->structure_image) : null;
     }
 
+public function facilities(): HasMany
+{
+    return $this->hasMany(Facility::class)->orderBy('sort');
+}
+
+    public function milestones()
+{
+    return $this->hasMany(Milestone::class);
+}
     /** Poster PPDB yang diunggah admin / super admin. */
     public function ppdbPosterUrl(): ?string
     {

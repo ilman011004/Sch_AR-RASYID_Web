@@ -10,7 +10,7 @@
 
 <div class="page-head">
         <h1>{{ $r->student_name }} <small>{{ $r->reg_number }} · {{ $r->school->name }}</small></h1>
-    <a href="{{ route('admin.ppdb.index') }}">← Kembali ke daftar</a>
+    <a href="{{ auth()->user()->isSuperAdmin() ? route('admin.ppdb.all') : route('admin.ppdb.index') }}">← Kembali ke daftar</a>
 </div>
 
 {{-- Indikator tahap --}}
