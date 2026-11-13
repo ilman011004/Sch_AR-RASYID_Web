@@ -11,6 +11,7 @@
         'guru' => ['icon' => '👨‍🏫', 'desc' => 'Data tenaga pendidik dan kependidikan sekolah', 'color' => '#3b82f6'],
         'program' => ['icon' => '⭐', 'desc' => 'Daftar program unggulan dan ekstrakurikuler sekolah', 'color' => '#a855f7'],
         'keunggulan' => ['icon' => '🏆', 'desc' => 'Poin-poin keunggulan dan keistimewaan sekolah', 'color' => '#eab308'],
+        'fotoyayasan' => ['icon' => '🏛️', 'desc' => 'Foto-foto yang tampil di bagian Tentang Yayasan pada beranda portal', 'color' => '#0f766e'],
         'faq' => ['icon' => '💬', 'desc' => 'Pertanyaan umum yang sering ditanyakan orang tua / siswa', 'color' => '#06b6d4'],
     ];
     $meta = $icons[$resource] ?? ['icon' => '📁', 'desc' => 'Kelola data '.$d['label'], 'color' => '#0f766e'];

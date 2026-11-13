@@ -157,6 +157,11 @@ class School extends Model
         return $this->structure_image ? asset('storage/'.$this->structure_image) : null;
     }
 
+public function aboutPhotos(): HasMany
+{
+    return $this->hasMany(AboutPhoto::class)->orderBy('sort')->orderBy('id');
+}
+
 public function facilities(): HasMany
 {
     return $this->hasMany(Facility::class)->orderBy('sort');

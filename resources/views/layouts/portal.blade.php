@@ -6,6 +6,14 @@
         'pegawai' => 'Pegawai',
     ];
     $socials = ['facebook' => 'Facebook', 'instagram' => 'Instagram', 'youtube' => 'YouTube', 'tiktok' => 'TikTok'];
+
+    // Render isi halaman lebih dulu supaya bisa dicek: halaman yang punya banner judul (.page-title)
+    // otomatis memakai navbar transparan yang sama seperti beranda. Tidak perlu mengubah tiap halaman.
+    $pageContent = $__env->yieldContent('content');
+    $bodyClass = trim($__env->yieldContent('body_class'));
+    if (! str_contains($bodyClass, 'hero-page') && str_contains($pageContent, 'class="page-title"')) {
+        $bodyClass = trim($bodyClass.' hero-page');
+    }
 @endphp
 <!doctype html>
 <html lang="id">
@@ -23,12 +31,12 @@
     @vite('resources/css/site.css')
     <style>:root { --primary: {{ $foundation->safeColor() }}; }</style>
 
-    {{-- Navbar transparan di atas hero (hanya halaman yang memakai @section('body_class', 'hero-page')) --}}
+    {{-- Navbar transparan di atas hero / banner judul (kelas hero-page dipasang otomatis, lihat bagian atas file) --}}
     <style>
         /* Halaman biasa: pembungkus tidak mengubah tata letak, header tetap sticky seperti semula */
         .site-top { display: contents; }
 
-        /* Halaman dengan hero: topbar + navbar melayang di atas gambar */
+        /* Halaman dengan hero atau banner judul: topbar + navbar melayang di atas gambar */
         .hero-page .site-top { display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
 
         .hero-page .topbar {
@@ -66,8 +74,30 @@
         /* Hero dimulai dari tepi atas layar, beri ruang agar teks tidak tertutup navbar */
         .hero-page .hero { padding-top: 7rem; }
 
+        /* Banner judul halaman dalam (Profil, Berita, Pengumuman, dll.) */
+        .hero-page .page-title { position: relative; padding-top: 8rem; }
+        .hero-page .page-title::before {
+            content: ""; position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(180deg, rgba(10, 30, 45, .38), rgba(10, 30, 45, 0) 65%);
+        }
+        .hero-page .page-title > * { position: relative; z-index: 1; }
+
+        /* Motif bintang geometris Islami di banner judul (SVG ditanam langsung, tidak perlu file gambar) */
+        .page-title { position: relative; overflow: hidden; border-bottom: 4px solid var(--accent-2, #f5b800); }
+        .page-title::after {
+            content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='white' fill-opacity='.05' stroke='white' stroke-width='.9' stroke-opacity='.55'%3E%3Crect x='5.86' y='5.86' width='28.28' height='28.28'/%3E%3Crect x='5.86' y='5.86' width='28.28' height='28.28' transform='rotate(45 20 20)'/%3E%3C/g%3E%3Cg fill='none' stroke='white' stroke-width='.9' stroke-opacity='.5'%3E%3Ccircle cx='20' cy='20' r='4.5'/%3E%3Cpath d='M0 -4L4 0L0 4L-4 0ZM40 -4L44 0L40 4L36 0ZM0 36L4 40L0 44L-4 40ZM40 36L44 40L40 44L36 40Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 56px 56px;
+            opacity: .7;
+            /* motif samar di kiri (di belakang judul) dan makin jelas ke kanan */
+            -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, .22) 0%, #000 75%);
+            mask-image: linear-gradient(90deg, rgba(0, 0, 0, .22) 0%, #000 75%);
+        }
+        .page-title > * { position: relative; z-index: 1; }
+
         @media (min-width: 961px) {
             .hero-page .hero { padding-top: 9.5rem; }
+            .hero-page .page-title { padding-top: 9.5rem; }
 
             .hero-page .site-top:not(.scrolled) .nav > a,
             .hero-page .site-top:not(.scrolled) .nav > .dropdown > button { color: #fff; }
@@ -121,7 +151,7 @@
         .site-footer h4 { color: var(--accent); }
     </style>
 </head>
-<body class="@yield('body_class')">
+<body class="{{ $bodyClass }}">
 
 <div class="site-top" data-site-top>
 
@@ -197,7 +227,7 @@
 </div>
 
 <main>
-    @yield('content')
+    {!! $pageContent !!}
 </main>
 
 <footer class="site-footer">
@@ -266,7 +296,7 @@
             });
         }
 
-        // Navbar transparan -> putih saat halaman di-scroll (hanya halaman hero)
+        // Navbar transparan -> putih saat halaman di-scroll (halaman hero dan banner judul)
         var top = document.querySelector('[data-site-top]');
         if (top && document.body.classList.contains('hero-page')) {
             var onScroll = function () { top.classList.toggle('scrolled', window.scrollY > 40); };

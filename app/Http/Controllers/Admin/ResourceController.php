@@ -87,6 +87,11 @@ class ResourceController extends Controller
         abort_unless($d, 404);
         abort_unless(in_array($request->user()->role, $d['roles'], true), 403);
 
+        // Modul khusus yayasan: tidak ada untuk sekolah jenjang.
+        if (($d['only'] ?? null) === 'foundation') {
+            abort_unless(AdminContext::school()->isFoundation(), 404);
+        }
+
         return $d;
     }
 

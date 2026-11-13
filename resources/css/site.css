@@ -11,6 +11,9 @@
 @layer base {
     :root {
         --primary: #0f766e;
+        /* UPDATE: warna aksen tersedia global (sebelumnya hanya di <style> layout) */
+        --accent: #22a06b;
+        --accent-2: #f5b800;
         --ink: #111827;
         --text: #374151;
         --muted: #6b7280;
@@ -325,8 +328,9 @@
         background: color-mix(in srgb, var(--primary) 11%, #fff);
     }
 
+    /* UPDATE: tombol di navbar ikut memakai warna yang sudah digelapkan */
     .nav a.btn {
-        background: var(--primary);
+        background: color-mix(in srgb, var(--primary) 80%, #000);
         color: #fff;
         margin-left: .5rem;
         padding: .55rem 1.2rem;
@@ -334,20 +338,20 @@
     }
 
     .nav a.btn:hover {
-        background: var(--primary);
+        background: color-mix(in srgb, var(--primary) 80%, #000);
         color: #fff;
         filter: brightness(.92);
     }
 
     .nav a.btn.btn-outline {
         background: transparent;
-        color: var(--primary);
+        color: color-mix(in srgb, var(--primary) 80%, #000);
         margin-left: .4rem;
         padding: .5rem 1.1rem;
     }
 
     .nav a.btn.btn-outline:hover {
-        background: var(--primary);
+        background: color-mix(in srgb, var(--primary) 80%, #000);
         color: #fff;
         filter: none;
     }
@@ -440,6 +444,8 @@
     }
 
     /* ---------- Tombol ---------- */
+    /* UPDATE: latar tombol digelapkan 20% agar teks putih tetap kontras
+       walaupun warna utama dari pengaturan admin berwarna terang (mis. biru muda). */
     .btn {
         display: inline-block;
         cursor: pointer;
@@ -448,9 +454,9 @@
         text-decoration: none;
         font-size: .95rem;
         padding: .72rem 1.5rem;
-        background: var(--primary);
+        background: color-mix(in srgb, var(--primary) 80%, #000);
         color: #fff;
-        border: 2px solid var(--primary);
+        border: 2px solid color-mix(in srgb, var(--primary) 80%, #000);
         transition: transform .15s, box-shadow .15s, filter .15s;
     }
 
@@ -460,13 +466,18 @@
         box-shadow: 0 8px 18px rgba(16, 24, 40, .15);
     }
 
+    .btn:focus-visible {
+        outline: 3px solid var(--accent-2);
+        outline-offset: 2px;
+    }
+
     .btn-outline {
         background: transparent;
-        color: var(--primary);
+        color: color-mix(in srgb, var(--primary) 80%, #000);
     }
 
     .btn-outline:hover {
-        background: var(--primary);
+        background: color-mix(in srgb, var(--primary) 80%, #000);
         color: #fff;
         filter: none;
     }

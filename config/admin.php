@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\AboutPhoto;
 use App\Models\Advantage;
 use App\Models\Facility; // BARU
 use App\Models\Faq;
@@ -18,8 +19,11 @@ use App\Models\Staff;
  |
  | Tipe field: text, textarea, select, image, video, date, datetime, number, checkbox, color, url
  | Opsi tambahan: 'button' (teks tombol upload), 'show_if' => ['nama_field' => 'nilai'] (tampil hanya bila field lain bernilai itu)
+ | BARU (modul): 'only' => 'foundation' (menu hanya ada saat yayasan yang dikelola)
  | BARU (khusus school_fields): 'only' => 'foundation' (hanya tampil untuk yayasan),
- |                              'except' => 'foundation' (tampil untuk semua kecuali yayasan)
+ |                              'except' => 'foundation' (tampil untuk semua kecuali yayasan),
+ |                              'roles' => ['super_admin'] (hanya peran tersebut yang boleh melihat & mengubah)
+ | Semua aturan ini ditegakkan di server (SettingsController), bukan hanya disembunyikan di tampilan.
  */
 
 return [
@@ -186,6 +190,26 @@ return [
             ],
         ],
 
+        // BARU: foto-foto bagian "Tentang Yayasan" di beranda portal. Menu sendiri, khusus super admin,
+        // dan hanya muncul saat yang dikelola adalah yayasan. (Kunci modul wajib huruf a-z saja.)
+        'fotoyayasan' => [
+            'label' => 'Foto Tentang Yayasan',
+            'model' => AboutPhoto::class,
+            'dir' => 'about',
+            'roles' => ['super_admin'],
+            'only' => 'foundation',
+            'columns' => ['title' => 'Keterangan foto', 'sort' => 'Urutan'],
+            'order' => ['sort', 'asc'],
+            'fields' => [
+                ['name' => 'image', 'label' => 'Foto', 'type' => 'image', 'button' => 'Pilih Foto', 'required_on_create' => true,
+                    'help' => 'Foto mendatar atau tegak sama-sama bisa, tampil utuh tanpa dipotong. Maks. 2 MB. Foto tampil sebagai slider di beranda (maks. 10 foto pertama).'],
+                ['name' => 'title', 'label' => 'Keterangan foto', 'type' => 'text', 'rules' => 'required|string|max:120',
+                    'help' => 'Singkat saja, contoh: Gedung SD Islam Terpadu. Tampil sebagai teks di bagian bawah foto.'],
+                ['name' => 'sort', 'label' => 'Urutan', 'type' => 'number', 'rules' => 'nullable|integer|min:0|max:9999', 'default' => 0,
+                    'help' => 'Angka kecil tampil lebih dulu di slider.'],
+            ],
+        ],
+
         'faq' => [
             'label' => 'FAQ',
             'model' => Faq::class,
@@ -219,14 +243,12 @@ return [
                 'help' => 'Dipakai untuk kartu statistik di halaman Sejarah.'],
         ],
 
-        // BARU: hanya tampil untuk yayasan
+        // BARU: hanya tampil untuk super admin saat yang dikelola adalah yayasan.
+        // Foto-foto Tentang Yayasan kini punya menu sendiri: "Foto Tentang Yayasan" (modul 'fotoyayasan').
         'Tentang Yayasan' => [
-            ['name' => 'about_photo', 'label' => 'Foto Tentang Yayasan', 'type' => 'image', 'button' => 'Pilih Foto',
-                'only' => 'foundation',
-                'help' => 'Disarankan foto mendatar (4:3), misalnya gedung atau kegiatan yayasan. Tampil di kiri bagian Tentang Yayasan di beranda portal.'],
             ['name' => 'about_text', 'label' => 'Teks Tentang Yayasan', 'type' => 'textarea', 'rows' => 8,
-                'rules' => 'nullable|string|max:3000', 'only' => 'foundation',
-                'help' => 'Cukup 2 sampai 3 paragraf pendek. Pisahkan paragraf dengan baris kosong.'],
+                'rules' => 'nullable|string|max:3000', 'only' => 'foundation', 'roles' => ['super_admin'],
+                'help' => 'Cukup 2 sampai 3 paragraf pendek. Pisahkan paragraf dengan baris kosong. Foto diatur di menu "Foto Tentang Yayasan".'],
         ],
 
         'Kepala Sekolah' => [
