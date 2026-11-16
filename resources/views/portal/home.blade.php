@@ -34,8 +34,8 @@
                 <p class="lead">{{ $foundation->description }}</p>
             @endif
             <div class="btns">
-                <a class="btn" href="{{ route('portal.spmb') }}">Info SPMB</a>
-                <a class="btn btn-outline" href="{{ route('portal.profile', 'sejarah') }}">Tentang Yayasan</a>
+                <a class="btn hero-btn-spmb" href="{{ route('portal.spmb') }}">Info SPMB</a>
+                <a class="btn hero-btn-about" href="{{ route('portal.profile', 'sejarah') }}">Tentang Yayasan</a>
             </div>
         </div>
 
@@ -75,66 +75,147 @@
 
 {{-- ================= Tentang Yayasan ================= --}}
 <style>
-    .about { position: relative; background: #fff; overflow: hidden; }
+    /* Hero button styling */
+    .hero-btn-spmb {
+        background: var(--accent, #22a06b) !important;
+        border-color: var(--accent, #22a06b) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .2) !important;
+        transition: all .25s ease !important;
+    }
+    .hero-btn-spmb:hover {
+        background: color-mix(in srgb, var(--accent, #22a06b) 85%, #000) !important;
+        border-color: color-mix(in srgb, var(--accent, #22a06b) 85%, #000) !important;
+        color: #fff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, .28) !important;
+    }
+
+    /* Button Tentang Yayasan: sebelum diarahkan transparan bergaris putih, pas diarahkan kursor jadi biru tulisan putih */
+    .hero-btn-about {
+        background: transparent !important;
+        border: 2px solid rgba(255, 255, 255, .85) !important;
+        color: #fff !important;
+        font-weight: 700 !important;
+        transition: all .25s ease !important;
+    }
+    .hero-btn-about:hover {
+        background: var(--primary, #0f766e) !important;
+        border-color: var(--primary, #0f766e) !important;
+        color: #fff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, .25) !important;
+    }
+
+    /* Section Tentang Yayasan */
+    .about {
+        position: relative;
+        background: #fff;
+        overflow: hidden;
+        padding: clamp(3.5rem, 5vw, 5rem) 0;
+    }
     .about::before {
         content: ""; position: absolute; pointer-events: none;
-        width: 560px; height: 560px; right: -180px; top: -160px; border-radius: 50%;
-        background: radial-gradient(closest-side, color-mix(in srgb, var(--primary) 9%, transparent), transparent);
+        width: 560px; height: 560px; right: -160px; top: -140px; border-radius: 50%;
+        background: radial-gradient(closest-side, color-mix(in srgb, var(--primary) 8%, transparent), transparent);
     }
-    .about > .wrap { position: relative; z-index: 1; }
+    .about > .wrap { position: relative; z-index: 2; }
 
-    /* Dua kolom sama lebar, sejajar di tengah secara vertikal */
+    /* Dua kolom rapi dan proporsional */
     .about-grid {
-        display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-        gap: clamp(2rem, 4.5vw, 4rem); align-items: center;
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: clamp(2.5rem, 5vw, 4rem);
+        align-items: center;
     }
-    .about-grid.no-media { grid-template-columns: minmax(0, 1fr); max-width: 760px; margin-inline: auto; }
+    .about-grid.no-media { grid-template-columns: minmax(0, 1fr); max-width: 800px; margin-inline: auto; }
 
-    /* ---- Teks ---- */
+    /* ---- Teks Kiri ---- */
     .about-text { min-width: 0; }
-    .about-text .kicker { display: inline-block; margin-bottom: .6rem; }
+    
+    .about-kicker {
+        display: inline-block;
+        font-size: .85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: var(--accent, #22a06b);
+        margin-bottom: .6rem;
+    }
+
     .about-text h2 {
-        margin: 0 0 1.5rem; font-size: clamp(1.9rem, 3.2vw, 2.7rem);
-        line-height: 1.15; letter-spacing: -.02em; text-wrap: balance;
+        margin: 0 0 1.2rem;
+        font-size: clamp(1.85rem, 2.8vw, 2.5rem);
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: -.02em;
+        color: #0f172a;
+        word-break: keep-all;
+        overflow-wrap: normal;
+        white-space: normal;
     }
-    /* Garis aksen di bawah judul */
     .about-text h2::after {
-        content: ""; display: block; width: 56px; height: 4px; border-radius: 4px;
-        margin-top: 1rem; background: var(--accent, #22a06b);
+        content: ""; display: block; width: 60px; height: 4px; border-radius: 4px;
+        margin-top: .9rem; background: var(--accent, #22a06b);
     }
-    /* Deskripsi: semua paragraf sama (warna, ukuran, ketebalan), dikelompokkan dengan garis aksen di kiri */
+
+    /* Deskripsi: text-break aman agar teks panjang/URL tidak meluap */
     .about-desc {
-        max-width: 60ch; padding-left: 1.3rem;
+        margin-bottom: 1.8rem;
+        padding-left: 1.25rem;
         border-left: 3px solid color-mix(in srgb, var(--accent, #22a06b) 45%, #fff);
     }
     .about-desc p {
-        margin: 0 0 1.15rem; font-size: 1.02rem; font-weight: 400; line-height: 1.85;
-        color: var(--text); text-align: left; text-wrap: pretty; overflow-wrap: anywhere;
+        margin: 0 0 1.15rem;
+        font-size: 1.05rem;
+        font-weight: 400;
+        line-height: 1.85;
+        color: #334155;
+        text-align: left;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
     .about-desc p:last-child { margin-bottom: 0; }
 
-    /* Tombol dan tautan */
-    .about-cta { display: flex; align-items: center; flex-wrap: wrap; gap: .9rem 1.6rem; margin-top: 1.8rem; }
+    /* Tombol Aksi */
+    .about-cta { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.6rem; }
     .about-cta .btn {
-        background: var(--accent, #22a06b); border-color: var(--accent, #22a06b); color: #fff;
-        opacity: 1; box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--accent, #22a06b) 70%, transparent);
+        background: var(--accent, #22a06b);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        padding: .8rem 1.6rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 22px -8px color-mix(in srgb, var(--accent, #22a06b) 70%, transparent);
+        transition: transform .2s, box-shadow .2s;
     }
-    .about-cta .btn:hover { background: color-mix(in srgb, var(--accent, #22a06b) 85%, #000); border-color: color-mix(in srgb, var(--accent, #22a06b) 85%, #000); }
+    .about-cta .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 26px -8px color-mix(in srgb, var(--accent, #22a06b) 85%, transparent);
+    }
     .about-link {
-        font-weight: 700; color: var(--ink); text-decoration: none; padding-bottom: 2px;
-        border-bottom: 2px solid color-mix(in srgb, var(--accent-2, #f5b800) 80%, transparent);
-        transition: border-color .2s, color .2s;
+        font-weight: 700;
+        color: #0f172a;
+        text-decoration: none;
+        padding-bottom: 2px;
+        border-bottom: 2px solid var(--accent-2, #f5b800);
+        transition: color .2s, border-color .2s;
     }
-    .about-link:hover { color: var(--accent, #22a06b); border-bottom-color: var(--accent-2, #f5b800); }
+    .about-link:hover { color: var(--accent, #22a06b); border-color: var(--accent, #22a06b); }
 
-    /* ---- Slider foto: foto tampil utuh (tidak terpotong), geser sendiri, panah kiri-kanan ---- */
+    /* ---- Kolom Kanan: Slider Foto Utuh ---- */
     .about-slider { position: relative; min-width: 0; }
-    .as-stage { position: relative; }
+    .as-stage {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 24px 50px -15px rgba(15, 23, 42, .25);
+    }
     .as-viewport {
         position: relative; display: flex; overflow-x: auto; overscroll-behavior-x: contain;
         scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none;
-        aspect-ratio: 16 / 10; border-radius: 20px; background: #0e1b27;
-        box-shadow: 0 30px 56px -30px rgba(16, 24, 40, .55);
+        aspect-ratio: 16 / 10.5; background: #0b141e;
     }
     .as-viewport::-webkit-scrollbar { display: none; }
     .as-viewport:focus-visible { outline: 3px solid var(--accent-2, #f5b800); outline-offset: 3px; }
@@ -142,53 +223,54 @@
         position: relative; flex: 0 0 100%; height: 100%; margin: 0; overflow: hidden;
         scroll-snap-align: center; scroll-snap-stop: always;
     }
-    /* Latar buram dari foto yang sama, mengisi ruang kosong di samping foto */
     .as-bg {
-        position: absolute; inset: -12%; background-size: cover; background-position: center;
-        filter: blur(28px) brightness(.85) saturate(1.1);
+        position: absolute; inset: -15%; background-size: cover; background-position: center;
+        filter: blur(28px) brightness(.75) saturate(1.15);
     }
     .as-slide img { position: relative; z-index: 1; display: block; width: 100%; height: 100%; object-fit: contain; }
     .as-cap {
-        position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 2.2rem 1.2rem .85rem;
-        color: #fff; font-size: .88rem; font-weight: 600; line-height: 1.35;
-        background: linear-gradient(to top, rgba(8, 16, 28, .72), transparent);
+        position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 2.2rem 1.4rem .9rem;
+        color: #fff; font-size: .92rem; font-weight: 600; line-height: 1.35;
+        background: linear-gradient(to top, rgba(8, 16, 28, .85), transparent);
+        display: flex; align-items: center; gap: .5rem;
     }
+    .as-cap::before {
+        content: ""; width: 8px; height: 8px; border-radius: 50%;
+        background: var(--accent-2, #f5b800); flex-shrink: 0;
+    }
+
     .as-btn {
         position: absolute; z-index: 3; top: 50%; transform: translateY(-50%);
-        width: 42px; height: 42px; border: 0; border-radius: 50%; cursor: pointer;
-        background: rgba(255, 255, 255, .95); color: #0b1620; font-size: 1.5rem; line-height: 1;
-        display: grid; place-items: center; box-shadow: 0 10px 26px rgba(0, 0, 0, .28);
-        transition: transform .2s, background .2s;
+        width: 44px; height: 44px; border: 0; border-radius: 50%; cursor: pointer;
+        background: rgba(255, 255, 255, .95); color: #0f172a; font-size: 1.4rem; line-height: 1;
+        display: grid; place-items: center; box-shadow: 0 10px 25px rgba(0, 0, 0, .28);
+        transition: transform .2s, background .2s, color .2s;
     }
-    .as-btn:hover { background: #fff; transform: translateY(-50%) scale(1.07); }
+    .as-btn:hover { background: #fff; color: var(--accent, #22a06b); transform: translateY(-50%) scale(1.08); }
     .as-btn:focus-visible { outline: 3px solid var(--accent-2, #f5b800); outline-offset: 2px; }
-    .as-prev { left: .8rem; }
-    .as-next { right: .8rem; }
-    .as-dots { display: flex; justify-content: center; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .as-prev { left: 1rem; }
+    .as-next { right: 1rem; }
+    .as-dots { display: flex; justify-content: center; flex-wrap: wrap; gap: .55rem; margin-top: 1.1rem; }
     .as-dot {
-        width: 9px; height: 9px; padding: 0; border: 0; border-radius: 999px; cursor: pointer;
-        background: color-mix(in srgb, var(--ink) 22%, transparent); transition: width .3s, background .3s;
+        width: 10px; height: 10px; padding: 0; border: 0; border-radius: 999px; cursor: pointer;
+        background: #cbd5e1; transition: width .3s, background .3s;
     }
-    .as-dot.is-active { width: 26px; background: var(--accent, #22a06b); }
+    .as-dot.is-active { width: 28px; background: var(--accent, #22a06b); }
 
-    /* Cadangan bila belum ada foto: logo yayasan */
+    /* Cadangan Logo */
     .about-logo {
-        display: grid; place-items: center; aspect-ratio: 16 / 10; border-radius: 20px; padding: 12%;
-        background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 68%, #000), var(--primary));
-        box-shadow: 0 30px 56px -30px rgba(16, 24, 40, .55);
+        display: grid; place-items: center; aspect-ratio: 16 / 10.5; border-radius: 20px; padding: 12%;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 75%, #000), var(--primary));
+        box-shadow: 0 30px 56px -30px rgba(16, 24, 40, .4);
     }
-    .about-logo img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 12px 24px rgba(0, 0, 0, .25)); }
-
-    /* Pita angka */
-    .figures .stat .num { font-variant-numeric: tabular-nums; }
+    .about-logo img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 12px 24px rgba(0, 0, 0, .3)); }
 
     @media (max-width: 900px) {
         .about-grid { grid-template-columns: 1fr; }
-        .about-text h2 { font-size: clamp(1.7rem, 6vw, 2.2rem); }
+        .about-text h2 { font-size: clamp(1.8rem, 5vw, 2.3rem); }
     }
     @media (max-width: 560px) {
-        .as-btn { width: 36px; height: 36px; font-size: 1.25rem; }
-        .as-viewport, .about-logo { border-radius: 16px; }
+        .as-btn { width: 36px; height: 36px; font-size: 1.15rem; }
         .about-desc { padding-left: 1rem; }
         .about-desc p { font-size: 1rem; line-height: 1.75; }
     }
@@ -196,62 +278,68 @@
 
 @if (filled($foundation->about_text) || $photoCount > 0)
 <section class="section about" id="tentang">
-    <div class="wrap about-grid {{ ($photoCount > 0 || $foundation->logoUrl()) ? '' : 'no-media' }}">
+    <div class="wrap">
+        <div class="about-grid {{ ($photoCount > 0 || $foundation->logoUrl()) ? '' : 'no-media' }}">
 
-        <div class="about-text" data-reveal>
-            <span class="kicker">Tentang Yayasan</span>
-            <h2>Mengenal {{ $foundation->name }}</h2>
+            <div class="about-text" data-reveal>
+                <span class="about-kicker">Tentang Yayasan</span>
+                <h2>Mengenal <span style="white-space: nowrap;">{{ $foundation->name }}</span></h2>
 
-            <div class="about-desc">
-                @foreach (preg_split('/\R{2,}/', trim((string) $foundation->about_text)) as $para)
-                    @if (trim($para) !== '')
-                        <p>{!! nl2br(e($para)) !!}</p>
-                    @endif
-                @endforeach
+                <div class="about-desc">
+                    @foreach (preg_split('/\R{2,}/', trim((string) $foundation->about_text)) as $para)
+                        @if (trim($para) !== '')
+                            <p>{!! nl2br(e($para)) !!}</p>
+                        @endif
+                    @endforeach
+                </div>
+
+                <div class="about-cta">
+                    <a class="btn" href="{{ route('portal.profile', 'sejarah') }}">
+                        Baca profil lengkap
+                    </a>
+                    <a class="about-link" href="{{ route('portal.profile', 'visi-misi') }}">
+                        Visi dan misi →
+                    </a>
+                </div>
             </div>
 
-            <div class="about-cta">
-                <a class="btn" href="{{ route('portal.profile', 'sejarah') }}">Baca profil lengkap</a>
-                <a class="about-link" href="{{ route('portal.profile', 'visi-misi') }}">Visi dan misi →</a>
-            </div>
-        </div>
+            @if ($photoCount > 0)
+                <div class="about-slider" data-about-slider data-reveal role="region"
+                     aria-roledescription="carousel" aria-label="Foto Tentang Yayasan">
+                    <div class="as-stage">
+                        <div class="as-viewport" tabindex="0">
+                            @foreach ($aboutPhotos as $photo)
+                                <figure class="as-slide" aria-label="Foto {{ $loop->iteration }} dari {{ $photoCount }}">
+                                    <div class="as-bg" style="background-image: url('{{ $photo->imageUrl() }}')" aria-hidden="true"></div>
+                                    <img src="{{ $photo->imageUrl() }}" alt="{{ $photo->title }}" @if (! $loop->first) loading="lazy" @endif>
+                                    @if (filled($photo->title))
+                                        <figcaption class="as-cap">{{ $photo->title }}</figcaption>
+                                    @endif
+                                </figure>
+                            @endforeach
+                        </div>
 
-        @if ($photoCount > 0)
-            <div class="about-slider" data-about-slider data-reveal role="region"
-                 aria-roledescription="carousel" aria-label="Foto Tentang Yayasan">
-                <div class="as-stage">
-                    <div class="as-viewport" tabindex="0">
-                        @foreach ($aboutPhotos as $photo)
-                            <figure class="as-slide" aria-label="Foto {{ $loop->iteration }} dari {{ $photoCount }}">
-                                <div class="as-bg" style="background-image: url('{{ $photo->imageUrl() }}')" aria-hidden="true"></div>
-                                <img src="{{ $photo->imageUrl() }}" alt="{{ $photo->title }}" @if (! $loop->first) loading="lazy" @endif>
-                                @if (filled($photo->title))
-                                    <figcaption class="as-cap">{{ $photo->title }}</figcaption>
-                                @endif
-                            </figure>
-                        @endforeach
+                        @if ($photoCount > 1)
+                            <button type="button" class="as-btn as-prev" aria-label="Foto sebelumnya">‹</button>
+                            <button type="button" class="as-btn as-next" aria-label="Foto berikutnya">›</button>
+                        @endif
                     </div>
 
                     @if ($photoCount > 1)
-                        <button type="button" class="as-btn as-prev" aria-label="Foto sebelumnya">‹</button>
-                        <button type="button" class="as-btn as-next" aria-label="Foto berikutnya">›</button>
+                        <div class="as-dots">
+                            @foreach ($aboutPhotos as $photo)
+                                <button type="button" class="as-dot {{ $loop->first ? 'is-active' : '' }}" aria-label="Ke foto {{ $loop->iteration }}"></button>
+                            @endforeach
+                        </div>
                     @endif
                 </div>
+            @elseif ($foundation->logoUrl())
+                <div class="about-logo" data-reveal>
+                    <img src="{{ $foundation->logoUrl() }}" alt="Logo {{ $foundation->name }}" loading="lazy">
+                </div>
+            @endif
 
-                @if ($photoCount > 1)
-                    <div class="as-dots">
-                        @foreach ($aboutPhotos as $photo)
-                            <button type="button" class="as-dot {{ $loop->first ? 'is-active' : '' }}" aria-label="Ke foto {{ $loop->iteration }}"></button>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        @elseif ($foundation->logoUrl())
-            <div class="about-logo" data-reveal>
-                <img src="{{ $foundation->logoUrl() }}" alt="Logo {{ $foundation->name }}" loading="lazy">
-            </div>
-        @endif
-
+        </div>
     </div>
 </section>
 @endif

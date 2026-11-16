@@ -29,6 +29,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>@yield('title', $school->name)</title>
     <meta name="description" content="@yield('description', \Illuminate\Support\Str::limit((string) $school->description, 150))">
+    <link rel="canonical" href="{{ url()->current() }}">
     @if ($school->logoUrl())
         <link rel="icon" href="{{ $school->logoUrl() }}">
     @endif
@@ -37,6 +38,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')
     <style>:root { --primary: {{ $school->safeColor() }}; }</style>
+
+    {{-- Structured Data (Schema.org / JSON-LD) untuk Google Organization --}}
+    @php
+        $sameAsSchool = [];
+        foreach ($socials as $k => $l) {
+            if (filled($school->{$k})) {
+                $sameAsSchool[] = $school->{$k};
+            }
+        }
+        $jsonLdSchool = [
+            '@context' => 'https://schema.org',
+            '@type' => 'School',
+            'name' => $school->name,
+            'url' => route('home', $school),
+            'logo' => $school->logoUrl() ?: null,
+            'description' => $school->description ?: $school->tagline,
+            'telephone' => $school->phone ?: null,
+            'email' => $school->email ?: null,
+            'address' => $school->address ? [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $school->address,
+                'addressCountry' => 'ID',
+            ] : null,
+            'sameAs' => !empty($sameAsSchool) ? array_values($sameAsSchool) : null,
+        ];
+    @endphp
+    <script type="application/ld+json">
+        {!! json_encode(array_filter($jsonLdSchool), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
 
     {{-- Navbar transparan di atas hero / banner judul (kelas hero-page dipasang otomatis, lihat bagian atas file) --}}
     <style>
@@ -126,7 +156,37 @@
         :root { --accent: #2d8f6b; --accent-2: #f5b800; --ink: #24485c; }
 
         /* Tombol utama di hero (satu-satunya blok hijau besar) */
-        .hero .btn:not(.btn-outline) { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .hero .btn:not(.btn-outline) {
+            background: var(--accent, #2d8f6b);
+            border-color: var(--accent, #2d8f6b);
+            color: #fff !important;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
+            transition: all .25s ease;
+        }
+        .hero .btn:not(.btn-outline):hover {
+            background: color-mix(in srgb, var(--accent, #2d8f6b) 85%, #000);
+            border-color: color-mix(in srgb, var(--accent, #2d8f6b) 85%, #000);
+            color: #fff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .28);
+        }
+
+        /* Tombol kedua di hero (Lihat Profil): sebelum diarahkan transparan border putih, pas diarahkan kursor jadi biru tulisan putih */
+        .hero .btn.btn-outline {
+            background: transparent !important;
+            border: 2px solid rgba(255, 255, 255, .85) !important;
+            color: #fff !important;
+            font-weight: 700 !important;
+            transition: all .25s ease !important;
+        }
+        .hero .btn.btn-outline:hover {
+            background: var(--primary, #0f766e) !important;
+            border-color: var(--primary, #0f766e) !important;
+            color: #fff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .25) !important;
+        }
 
         /* Menu aktif: garis kuning di bawah */
         .nav > a.active, .nav > .dropdown > button.active { box-shadow: inset 0 -3px 0 var(--accent-2); }
@@ -291,10 +351,20 @@
             <h4>Kontak</h4>
             <ul class="plain">
                 @if ($school->address)<li>{{ $school->address }}</li>@endif
-                @if ($school->phone)<li>Telp. {{ $school->phone }}</li>@endif
-                @if ($school->email)<li>{{ $school->email }}</li>@endif
+                @if ($school->phone)
+                    @php
+                        $cleanPhone = preg_replace('/[^0-9+]/', '', $school->phone);
+                    @endphp
+                    <li>Telp. <a href="tel:{{ $cleanPhone }}">{{ $school->phone }}</a></li>
+                @endif
+                @if ($school->email)
+                    <li><a href="mailto:{{ $school->email }}">{{ $school->email }}</a></li>
+                @endif
                 @if ($school->whatsapp)
-                    <li><a href="https://wa.me/{{ $school->whatsapp }}" rel="noopener" target="_blank">WhatsApp {{ $school->whatsapp }}</a></li>
+                    @php
+                        $cleanWa = preg_replace('/[^0-9]/', '', $school->whatsapp);
+                    @endphp
+                    <li><a href="https://wa.me/{{ $cleanWa }}" rel="noopener" target="_blank">WhatsApp {{ $school->whatsapp }}</a></li>
                 @endif
             </ul>
         </div>

@@ -22,6 +22,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', $foundation->name)</title>
     <meta name="description" content="@yield('description', \Illuminate\Support\Str::limit((string) $foundation->description, 150))">
+    <link rel="canonical" href="{{ url()->current() }}">
     @if ($foundation->logoUrl())
         <link rel="icon" href="{{ $foundation->logoUrl() }}">
     @endif
@@ -30,6 +31,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     @vite('resources/css/site.css')
     <style>:root { --primary: {{ $foundation->safeColor() }}; }</style>
+
+    {{-- Structured Data (Schema.org / JSON-LD) untuk Google Organization --}}
+    @php
+        $sameAs = [];
+        foreach ($socials as $k => $l) {
+            if (filled($foundation->{$k})) {
+                $sameAs[] = $foundation->{$k};
+            }
+        }
+        $jsonLd = [
+            '@context' => 'https://schema.org',
+            '@type' => 'EducationalOrganization',
+            'name' => $foundation->name,
+            'url' => url('/'),
+            'logo' => $foundation->logoUrl() ?: null,
+            'description' => $foundation->description ?: $foundation->tagline,
+            'telephone' => $foundation->phone ?: null,
+            'email' => $foundation->email ?: null,
+            'address' => $foundation->address ? [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $foundation->address,
+                'addressCountry' => 'ID',
+            ] : null,
+            'sameAs' => !empty($sameAs) ? array_values($sameAs) : null,
+        ];
+    @endphp
+    <script type="application/ld+json">
+        {!! json_encode(array_filter($jsonLd), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+    </script>
 
     {{-- Navbar transparan di atas hero / banner judul (kelas hero-page dipasang otomatis, lihat bagian atas file) --}}
     <style>
@@ -251,10 +281,20 @@
             <h4>Kontak</h4>
             <ul class="plain">
                 @if ($foundation->address)<li>{{ $foundation->address }}</li>@endif
-                @if ($foundation->phone)<li>Telp. {{ $foundation->phone }}</li>@endif
-                @if ($foundation->email)<li>{{ $foundation->email }}</li>@endif
+                @if ($foundation->phone)
+                    @php
+                        $cleanPhone = preg_replace('/[^0-9+]/', '', $foundation->phone);
+                    @endphp
+                    <li>Telp. <a href="tel:{{ $cleanPhone }}">{{ $foundation->phone }}</a></li>
+                @endif
+                @if ($foundation->email)
+                    <li><a href="mailto:{{ $foundation->email }}">{{ $foundation->email }}</a></li>
+                @endif
                 @if ($foundation->whatsapp)
-                    <li><a href="https://wa.me/{{ $foundation->whatsapp }}" rel="noopener" target="_blank">WhatsApp {{ $foundation->whatsapp }}</a></li>
+                    @php
+                        $cleanWa = preg_replace('/[^0-9]/', '', $foundation->whatsapp);
+                    @endphp
+                    <li><a href="https://wa.me/{{ $cleanWa }}" rel="noopener" target="_blank">WhatsApp {{ $foundation->whatsapp }}</a></li>
                 @endif
             </ul>
         </div>

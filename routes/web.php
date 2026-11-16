@@ -13,8 +13,12 @@ use App\Http\Controllers\PortalController;
 use App\Http\Controllers\PpdbAuthController;
 use App\Http\Controllers\PpdbController;
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
+
+// Rute SEO & AI Readiness: sitemap.xml
+Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 /*
 |--------------------------------------------------------------------------
@@ -162,7 +166,6 @@ $schoolRoutes = function () {
     Route::post('/ppdb/verifikasi', [PpdbAuthController::class, 'verify'])->middleware('throttle:10,10')->name('ppdb.verify.submit');
     Route::post('/ppdb/verifikasi/kirim-ulang', [PpdbAuthController::class, 'resend'])->middleware('throttle:5,10')->name('ppdb.verify.resend');
 
-      // Keluar: cukup sudah login, role apa pun boleh logout
     Route::post('/ppdb/keluar', [PpdbAuthController::class, 'logout'])->middleware('auth')->name('ppdb.logout');
 
     // --- PPDB: wajib login sebagai orang tua / wali ---

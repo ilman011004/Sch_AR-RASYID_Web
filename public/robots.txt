@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /ppdb/formulir
+
+Sitemap: https://yppiarrasyid.or.id/sitemap.xml
