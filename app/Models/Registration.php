@@ -42,6 +42,7 @@ class Registration extends Model
             'test_at' => 'datetime',
             'docs_verified' => 'boolean',
             'test_score' => 'decimal:2',
+            'custom_fields' => 'array',
         ];
     }
 

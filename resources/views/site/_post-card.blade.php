@@ -7,6 +7,9 @@
     <div class="body">
         <div class="meta">
             <span class="tag {{ $post->type === 'pengumuman' ? 'tag-warn' : '' }}">{{ $post->typeLabel() }}</span>
+            @if ($post->school && $post->school->isFoundation())
+                <span class="tag" style="background: color-mix(in srgb, var(--accent, #22a06b) 15%, #fff); color: var(--accent, #22a06b); font-weight: 700;">Yayasan</span>
+            @endif
             <span class="date">{{ $post->published_at?->translatedFormat('d F Y') }}</span>
         </div>
         <h3><a href="{{ route('news.show', ['school' => $school, 'slug' => $post->slug]) }}">{{ $post->title }}</a></h3>

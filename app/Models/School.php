@@ -27,6 +27,7 @@ class School extends Model
             'ppdb_open' => 'boolean',
             'ppdb_start' => 'date',
             'ppdb_end' => 'date',
+            'form_schema' => 'array',
         ];
     }
 
@@ -102,6 +103,127 @@ class School extends Model
     public function isFoundation(): bool
     {
         return $this->level === 'yayasan';
+    }
+
+    /**
+     * Mengambil skema formulir pendaftaran PPDB murni Google Form-style.
+     * Jika belum diatur khusus, dibuatkan default pertanyaan yang bisa diedit/ditambah/dihapus bebas oleh admin.
+     */
+    public function getFormSchema(): array
+    {
+        $schema = $this->form_schema;
+        if (! empty($schema) && is_array($schema) && ! empty($schema['pages'])) {
+            return $schema;
+        }
+
+        return [
+            'pages' => [
+                [
+                    'id' => 'page_1',
+                    'title' => 'Biodata Calon Siswa & Orang Tua',
+                    'subtitle' => 'Silakan isi data lengkap calon murid dan orang tua / wali',
+                    'fields' => [
+                        [
+                            'id' => 'f_student_name',
+                            'mapping' => 'student_name',
+                            'label' => 'Nama Lengkap Calon Siswa',
+                            'type' => 'text',
+                            'required' => true,
+                            'help' => 'Nama sesuai akta kelahiran',
+                            'options' => [],
+                        ],
+                        [
+                            'id' => 'f_gender',
+                            'mapping' => 'gender',
+                            'label' => 'Jenis Kelamin',
+                            'type' => 'radio',
+                            'required' => true,
+                            'help' => '',
+                            'options' => ['Laki-laki', 'Perempuan'],
+                        ],
+                        [
+                            'id' => 'f_birth_place',
+                            'mapping' => 'birth_place',
+                            'label' => 'Tempat Lahir',
+                            'type' => 'text',
+                            'required' => true,
+                            'help' => '',
+                            'options' => [],
+                        ],
+                        [
+                            'id' => 'f_birth_date',
+                            'mapping' => 'birth_date',
+                            'label' => 'Tanggal Lahir',
+                            'type' => 'date',
+                            'required' => true,
+                            'help' => '',
+                            'options' => [],
+                        ],
+                        [
+                            'id' => 'f_address',
+                            'mapping' => 'address',
+                            'label' => 'Alamat Tempat Tinggal',
+                            'type' => 'paragraph',
+                            'required' => true,
+                            'help' => 'Alamat lengkap beserta RT/RW atau nama jalan',
+                            'options' => [],
+                        ],
+                        [
+                            'id' => 'f_parent_name',
+                            'mapping' => 'parent_name',
+                            'label' => 'Nama Orang Tua / Wali',
+                            'type' => 'text',
+                            'required' => true,
+                            'help' => '',
+                            'options' => [],
+                        ],
+                        [
+                            'id' => 'f_parent_phone',
+                            'mapping' => 'parent_phone',
+                            'label' => 'Nomor HP / WhatsApp Aktif',
+                            'type' => 'text',
+                            'required' => true,
+                            'help' => 'Nomor yang dapat dihubungi untuk informasi PPDB',
+                            'options' => [],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'page_2',
+                    'title' => 'Unggah Berkas Dokumen',
+                    'subtitle' => 'Unggah dokumen dalam format gambar (JPG/PNG) atau PDF (maks. 2 MB)',
+                    'fields' => [
+                        [
+                            'id' => 'f_doc_birth_cert',
+                            'mapping' => 'doc_birth_cert',
+                            'label' => 'Akta Kelahiran',
+                            'type' => 'file',
+                            'required' => true,
+                            'help' => 'File JPG, PNG, atau PDF',
+                            'options' => [],
+                        ],
+                        [
+                            'id' => 'f_doc_family_card',
+                            'mapping' => 'doc_family_card',
+                            'label' => 'Kartu Keluarga',
+                            'type' => 'file',
+                            'required' => true,
+                            'help' => 'File JPG, PNG, atau PDF',
+                            'options' => [],
+                        ],
+                        [
+                            'id' => 'f_doc_photo',
+                            'mapping' => 'doc_photo',
+                            'label' => 'Pas Foto Calon Siswa (3x4 atau 4x6)',
+                            'type' => 'file',
+                            'required' => true,
+                            'help' => 'Foto berwarna terbaru calon siswa',
+                            'options' => [],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 
     /** Teks "satu per baris" menjadi array. */

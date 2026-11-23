@@ -68,6 +68,27 @@ Pantau status pendaftaran: {{ route('ppdb.status', $r->school) }}
                 <dt>Pekerjaan</dt><dd>{{ $r->parent_job ?: '-' }}</dd>
                 <dt>Akun pendaftar</dt><dd>{{ $r->user?->email ?: '-' }}</dd>
             </dl>
+
+            @if (! empty($r->custom_fields) && is_array($r->custom_fields))
+                <h2>Isian Formulir PPDB</h2>
+                <dl class="dl">
+                    @foreach ($r->custom_fields as $cf)
+                        <dt>{{ $cf['label'] ?? 'Pertanyaan' }}</dt>
+                        <dd>
+                            @php $val = $cf['value'] ?? null; @endphp
+                            @if (($cf['type'] ?? '') === 'file' && filled($val))
+                                <a href="{{ route('admin.ppdb.document', [$r->id, 'custom_'.($loop->index)]) }}" target="_blank" rel="noopener" style="font-weight:700">Lihat Berkas Terunggah ↗</a>
+                            @elseif (is_array($val))
+                                {{ implode(', ', $val) }}
+                            @elseif (filled($val))
+                                {!! nl2br(e($val)) !!}
+                            @else
+                                <span class="muted">-</span>
+                            @endif
+                        </dd>
+                    @endforeach
+                </dl>
+            @endif
         </section>
 
         <section class="panel">

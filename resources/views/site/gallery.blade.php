@@ -25,7 +25,13 @@
                         <a href="{{ asset('storage/'.$p->image) }}" target="_blank" rel="noopener">
                             <img src="{{ asset('storage/'.$p->image) }}" alt="{{ $p->title }}" loading="lazy">
                         </a>
-                        <figcaption>{{ $p->title }}@if ($p->caption)<small>{{ $p->caption }}</small>@endif</figcaption>
+                        <figcaption>
+                            {{ $p->title }}
+                            @if ($p->school && $p->school->isFoundation())
+                                <small style="display:inline-block; font-weight:700; color:var(--accent, #22a06b);">[Yayasan]</small>
+                            @endif
+                            @if ($p->caption)<small>{{ $p->caption }}</small>@endif
+                        </figcaption>
                     </figure>
                 @endforeach
             </div>

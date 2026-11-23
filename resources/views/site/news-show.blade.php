@@ -142,22 +142,39 @@
             {{-- ============ Artikel ============ --}}
             <article>
                 <header>
-                    <a class="nw-tag {{ $isAnnouncement ? 'is-warn' : '' }}" href="{{ route('news', ['school' => $school, 'jenis' => $post->type]) }}">{{ $post->typeLabel() }}</a>
+                    <div style="display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;">
+                        <a class="nw-tag {{ $isAnnouncement ? 'is-warn' : '' }}" href="{{ route('news', ['school' => $school, 'jenis' => $post->type]) }}">{{ $post->typeLabel() }}</a>
+                        @if ($post->school && $post->school->isFoundation())
+                            <span class="nw-tag" style="background: var(--accent, #22a06b);">Yayasan</span>
+                        @endif
+                    </div>
                     <h1 class="nw-title">{{ $post->title }}</h1>
                     @if ($post->excerpt)
                         <p class="nw-lead">{{ $post->excerpt }}</p>
                     @endif
 
                     <div class="nw-byline">
-                        @if ($school->logoUrl())
-                            <img class="nw-avatar" src="{{ $school->logoUrl() }}" alt="">
+                        @if ($post->school && $post->school->isFoundation())
+                            @if ($post->school->logoUrl())
+                                <img class="nw-avatar" src="{{ $post->school->logoUrl() }}" alt="">
+                            @else
+                                <span class="nw-avatar" aria-hidden="true">Y</span>
+                            @endif
+                            <div class="nw-by">
+                                <strong>Redaksi {{ $post->school->name }}</strong>
+                                <span>{{ $post->published_at?->translatedFormat('l, d F Y') }} · {{ $readMinutes }} menit baca</span>
+                            </div>
                         @else
-                            <span class="nw-avatar" aria-hidden="true">{{ mb_substr($school->name, 0, 1) }}</span>
+                            @if ($school->logoUrl())
+                                <img class="nw-avatar" src="{{ $school->logoUrl() }}" alt="">
+                            @else
+                                <span class="nw-avatar" aria-hidden="true">{{ mb_substr($school->name, 0, 1) }}</span>
+                            @endif
+                            <div class="nw-by">
+                                <strong>Redaksi {{ $school->name }}</strong>
+                                <span>{{ $post->published_at?->translatedFormat('l, d F Y') }} · {{ $readMinutes }} menit baca</span>
+                            </div>
                         @endif
-                        <div class="nw-by">
-                            <strong>Redaksi {{ $school->name }}</strong>
-                            <span>{{ $post->published_at?->translatedFormat('l, d F Y') }} · {{ $readMinutes }} menit baca</span>
-                        </div>
                     </div>
 
                     <div class="nw-share">

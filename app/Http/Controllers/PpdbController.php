@@ -22,7 +22,12 @@ class PpdbController extends Controller
             return redirect()->route('ppdb', $school)->with('error', 'Pendaftaran sedang ditutup.');
         }
 
-        return view('site.ppdb-form', ['school' => $school]);
+        $schema = $school->getFormSchema();
+
+        return view('site.ppdb-form', [
+            'school' => $school,
+            'schema' => $schema,
+        ]);
     }
 
     public function store(Request $request, School $school)
@@ -31,55 +36,105 @@ class PpdbController extends Controller
             return redirect()->route('ppdb', $school)->with('error', 'Pendaftaran sedang ditutup.');
         }
 
-        $data = $request->validate([
-            'student_name' => 'required|string|max:150',
-            'nik' => 'nullable|digits:16',
-            'gender' => 'required|in:L,P',
-            'birth_place' => 'required|string|max:100',
-            'birth_date' => 'required|date|before:today',
-            'religion' => 'nullable|string|max:30',
-            'address' => 'required|string|max:500',
-            'previous_school' => 'nullable|string|max:150',
-            'parent_name' => 'required|string|max:150',
-            'parent_phone' => ['required', 'regex:/^[0-9+\-\s]{8,20}$/'],
-            'parent_email' => 'nullable|email|max:150',
-            'parent_job' => 'nullable|string|max:100',
-            'doc_birth_cert' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'doc_family_card' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'doc_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        $schema = $school->getFormSchema();
+
+        $rules = [
             'website' => 'prohibited', // kolom jebakan bot
-        ], [], [
-            'student_name' => 'nama calon siswa',
-            'birth_place' => 'tempat lahir',
-            'birth_date' => 'tanggal lahir',
-            'address' => 'alamat',
-            'parent_name' => 'nama orang tua/wali',
-            'parent_phone' => 'nomor HP orang tua/wali',
-            'parent_email' => 'email orang tua/wali',
-            'doc_birth_cert' => 'akta kelahiran',
-            'doc_family_card' => 'kartu keluarga',
-            'doc_photo' => 'pas foto',
-        ]);
+        ];
+        $attributes = [];
 
-        unset($data['website']);
+        $allFields = [];
+        foreach ($schema['pages'] ?? [] as $page) {
+            foreach ($page['fields'] ?? [] as $field) {
+                $fId = $field['id'];
+                $allFields[$fId] = $field;
 
-        // Dokumen disimpan di disk privat (tidak bisa diakses lewat URL publik).
-        foreach (array_keys(Registration::DOCS) as $field) {
-            if ($request->hasFile($field)) {
-                $data[$field] = $request->file($field)->store('ppdb/'.$school->id, 'local');
+                $req = ! empty($field['required']) ? 'required' : 'nullable';
+
+                if ($field['type'] === 'file') {
+                    $rules[$fId] = $req.'|file|mimes:jpg,jpeg,png,pdf|max:2048';
+                } elseif ($field['type'] === 'checkbox') {
+                    $rules[$fId] = $req.'|array';
+                    $rules[$fId.'.*'] = 'string';
+                } elseif ($field['type'] === 'paragraph') {
+                    $rules[$fId] = $req.'|string|max:2500';
+                } elseif ($field['type'] === 'number') {
+                    $rules[$fId] = $req.'|numeric';
+                } elseif ($field['type'] === 'date') {
+                    $rules[$fId] = $req.'|date';
+                } else {
+                    $rules[$fId] = $req.'|string|max:255';
+                }
+
+                $attributes[$fId] = mb_strtolower($field['label']);
             }
         }
 
+        $validated = $request->validate($rules, [], $attributes);
+
+        // Petakan hasil isian ke data registrasi (core column & custom_fields)
+        $registrationData = [];
+        $customResponses = [];
+
+        foreach ($allFields as $fId => $field) {
+            $val = $validated[$fId] ?? null;
+            $mapping = $field['mapping'] ?? null;
+
+            if ($field['type'] === 'file') {
+                if ($request->hasFile($fId)) {
+                    $filePath = $request->file($fId)->store('ppdb/'.$school->id, 'local');
+                    if ($mapping && in_array($mapping, array_keys(Registration::DOCS), true)) {
+                        $registrationData[$mapping] = $filePath;
+                    }
+                    $customResponses[$fId] = [
+                        'label' => $field['label'],
+                        'type' => 'file',
+                        'value' => $filePath,
+                    ];
+                }
+            } else {
+                if ($val !== null && $val !== '') {
+                    if ($mapping && in_array($mapping, [
+                        'student_name', 'nik', 'gender', 'birth_place', 'birth_date', 'religion',
+                        'address', 'previous_school', 'parent_name', 'parent_phone', 'parent_email',
+                        'parent_job',
+                    ], true)) {
+                        $registrationData[$mapping] = $val;
+                    }
+
+                    $customResponses[$fId] = [
+                        'label' => $field['label'],
+                        'type' => $field['type'],
+                        'value' => is_array($val) ? array_values(array_filter($val)) : $val,
+                    ];
+                }
+            }
+        }
+
+        // Nilai fallback untuk core column di tabel registrations jika admin menamai field secara custom
+        $studentNameFallback = $registrationData['student_name']
+            ?? (collect($customResponses)->first(fn ($c) => str_contains(mb_strtolower($c['label']), 'nama'))['value'] ?? 'Calon Siswa');
+
+        $registrationData['student_name'] = (string) $studentNameFallback;
+        $registrationData['gender'] = $registrationData['gender'] ?? 'L';
+        $registrationData['birth_place'] = $registrationData['birth_place'] ?? '-';
+        $registrationData['birth_date'] = $registrationData['birth_date'] ?? now()->subYears(7)->toDateString();
+        $registrationData['address'] = $registrationData['address'] ?? '-';
+        $registrationData['parent_name'] = $registrationData['parent_name'] ?? $request->user()->name;
+        $registrationData['parent_phone'] = $registrationData['parent_phone'] ?? '-';
+
+        $registrationData['custom_fields'] = ! empty($customResponses) ? $customResponses : null;
+
         $userId = $request->user()->id;
 
-        $registration = DB::transaction(function () use ($school, $data, $userId) {
-            // Kunci baris sekolah agar dua pendaftar bersamaan tidak mendapat nomor yang sama.
+        $registration = DB::transaction(function () use ($school, $registrationData, $userId) {
+            // Kunci baris sekolah agar nomor pendaftaran unik & berurutan
             School::whereKey($school->id)->lockForUpdate()->first();
 
             $year = $school->ppdbYear();
             $seq = (int) Registration::where('school_id', $school->id)->where('year', $year)->max('seq') + 1;
 
-            return Registration::create($data + [
+            return Registration::create($registrationData + [
                 'school_id' => $school->id,
                 'user_id' => $userId,
                 'year' => $year,

@@ -47,10 +47,16 @@
 
         @if ($canManage && ! $isSuper)
             <a href="{{ route('admin.ppdb.index') }}" @class(['active' => request()->routeIs('admin.ppdb.index') || (! $isSuper && request()->routeIs('admin.ppdb.show'))])>Pendaftar PPDB</a>
+            @unless ($currentSchool->isFoundation())
+                <a href="{{ route('admin.ppdb.form-builder') }}" @class(['active' => request()->routeIs('admin.ppdb.form-builder*')])>Pengaturan Formulir PPDB</a>
+            @endunless
         @endif
 
         @if ($isSuper)
             <a href="{{ route('admin.ppdb.all') }}" @class(['active' => request()->routeIs('admin.ppdb.all*') || ($isSuper && request()->routeIs('admin.ppdb.show'))])>Semua Pendaftar (Yayasan)</a>
+            @unless ($currentSchool->isFoundation())
+                <a href="{{ route('admin.ppdb.form-builder') }}" @class(['active' => request()->routeIs('admin.ppdb.form-builder*')])>Pengaturan Formulir PPDB</a>
+            @endunless
         @endif
 
         @if ($canManage)

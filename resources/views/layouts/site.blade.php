@@ -227,11 +227,28 @@
         .stat .num { color: var(--accent-2); }
         .icon { background: color-mix(in srgb, var(--accent-2) 22%, #fff); }
 
+        /* Ikon Navigasi Profil Akun */
+        .nav-user-dropdown { position: relative; padding: .6rem 0; }
+        .nav-user-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: color-mix(in srgb, var(--primary) 12%, #fff);
+            border: 2px solid var(--primary); color: var(--primary);
+            cursor: pointer; padding: 0; transition: all .2s ease;
+        }
+        .nav-user-btn::after { display: none !important; }
+        .nav-user-btn:hover {
+            background: var(--primary); color: #fff; transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        }
+        .nav-user-avatar { display: inline-flex; align-items: center; justify-content: center; }
+        .nav-user-avatar svg { width: 20px; height: 20px; }
+
         @media (min-width: 961px) {
             .hero-page .site-top:not(.scrolled) .nav > a.btn-outline { color: #fff; border-color: rgba(255, 255, 255, .75); }
             .hero-page .site-top:not(.scrolled) .nav > a.btn-outline:hover { background: #fff; color: var(--primary); }
-            .hero-page .site-top:not(.scrolled) .nav-user span { color: #fff; }
-            .hero-page .site-top:not(.scrolled) .nav-user button { color: #fff; border-color: rgba(255, 255, 255, .75); }
+            .hero-page .site-top:not(.scrolled) .nav-user-dropdown > .nav-user-btn { color: #fff; border-color: rgba(255, 255, 255, .85); background: rgba(255, 255, 255, .2); }
+            .hero-page .site-top:not(.scrolled) .nav-user-dropdown > .nav-user-btn:hover { background: #fff; color: var(--primary); }
         }
     </style>
 </head>
@@ -299,11 +316,31 @@
 
             @auth
                 @if (auth()->user()->isParent())
-                    <form method="post" action="{{ route('ppdb.logout', $school) }}" class="nav-user">
-                        @csrf
-                        <span>{{ \Illuminate\Support\Str::limit(auth()->user()->name, 18) }}</span>
-                        <button type="submit">Keluar</button>
-                    </form>
+                    <div class="dropdown nav-user-dropdown" style="margin-left: .5rem;">
+                        <button type="button" class="nav-user-btn" title="Akun: {{ auth()->user()->name }}" aria-label="Menu Akun Saya">
+                            <span class="nav-user-avatar">
+                                @include('partials.icon', ['name' => 'user'])
+                            </span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end" style="right: 0; left: auto; min-width: 220px;">
+                            <div style="padding: .6rem .8rem; border-bottom: 1px solid var(--line); margin-bottom: .4rem;">
+                                <div style="font-weight: 700; color: var(--ink); font-size: .95rem; line-height: 1.2;">{{ auth()->user()->name }}</div>
+                                <div style="font-size: .8rem; color: var(--muted); margin-top: .2rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->email }}</div>
+                            </div>
+                            <a href="{{ route('ppdb.form', $school) }}" style="display: flex; align-items: center; gap: .5rem;">
+                                <span>📝</span> Formulir PPDB
+                            </a>
+                            <a href="{{ route('ppdb.status', $school) }}" style="display: flex; align-items: center; gap: .5rem;">
+                                <span>🔍</span> Cek Status
+                            </a>
+                            <form method="post" action="{{ route('ppdb.logout', $school) }}" style="margin: .3rem 0 0; padding-top: .3rem; border-top: 1px solid var(--line);">
+                                @csrf
+                                <button type="submit" style="width: 100%; text-align: left; background: none; border: none; padding: .55rem .8rem; color: #dc2626; font-weight: 600; font-size: .9rem; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: .5rem;">
+                                    <span>🚪</span> Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 @endif
             @else
                 <a class="btn btn-sm btn-outline" href="{{ route('ppdb.login', $school) }}">Masuk</a>

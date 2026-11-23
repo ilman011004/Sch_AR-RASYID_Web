@@ -132,10 +132,18 @@ class RegistrationController extends Controller
     /** Dokumen ada di disk privat; hanya admin sekolah yang bersangkutan (atau super admin) yang bisa membukanya. */
     public function document(int $id, string $field)
     {
-        abort_unless(array_key_exists($field, Registration::DOCS), 404);
-
         $r = $this->find($id);
-        $path = $r->{$field};
+        $path = null;
+
+        if (array_key_exists($field, Registration::DOCS)) {
+            $path = $r->{$field};
+        } elseif (str_starts_with($field, 'custom_')) {
+            $cfIndex = (int) substr($field, 7);
+            $values = array_values($r->custom_fields ?? []);
+            if (isset($values[$cfIndex]) && ($values[$cfIndex]['type'] ?? '') === 'file') {
+                $path = $values[$cfIndex]['value'] ?? null;
+            }
+        }
 
         abort_unless($path, 404);
 

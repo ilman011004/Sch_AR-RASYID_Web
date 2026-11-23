@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\ContactMessageReceived;
 use App\Models\ContactMessage;
+use App\Models\Gallery;
+use App\Models\Post;
 use App\Models\School;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -27,12 +29,26 @@ class SiteController extends Controller
 
     public function home(School $school)
     {
+        $foundation = School::foundation();
+        $schoolIds = array_unique(array_filter([$school->id, $foundation?->id]));
+
+        $news = Post::published()
+            ->whereIn('school_id', $schoolIds)
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        $photos = Gallery::whereIn('school_id', $schoolIds)
+            ->latest()
+            ->take(6)
+            ->get();
+
         return view('site.home', [
             'school' => $school,
             'slides' => $school->slides()->orderBy('sort')->orderBy('id')->get(),
             'advantages' => $school->advantages()->orderBy('sort')->orderBy('id')->get(),
-            'news' => $school->posts()->published()->latest('published_at')->take(3)->get(),
-            'photos' => $school->galleries()->latest()->take(6)->get(),
+            'news' => $news,
+            'photos' => $photos,
             'faqs' => $school->faqs()->orderBy('sort')->orderBy('id')->get(),
             'stats' => [
                 'Siswa aktif' => $school->stat_students ?? 0,
@@ -98,8 +114,11 @@ class SiteController extends Controller
     public function news(Request $request, School $school)
     {
         $type = $request->query('jenis');
+        $foundation = School::foundation();
+        $schoolIds = array_unique(array_filter([$school->id, $foundation?->id]));
 
-        $posts = $school->posts()->published()
+        $posts = Post::published()
+            ->whereIn('school_id', $schoolIds)
             ->when(in_array($type, ['berita', 'pengumuman'], true), fn ($q) => $q->where('type', $type))
             ->latest('published_at')
             ->paginate(9)
@@ -110,15 +129,24 @@ class SiteController extends Controller
 
     public function newsShow(School $school, string $slug)
     {
-        $post = $school->posts()->published()->where('slug', $slug)->firstOrFail();
+        $foundation = School::foundation();
+        $schoolIds = array_unique(array_filter([$school->id, $foundation?->id]));
+
+        // Buka tulisan milik jenjang ini atau milik yayasan
+        $post = Post::published()
+            ->whereIn('school_id', $schoolIds)
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         // Kotak samping: berita lain, lalu pengumuman lain (tanpa tulisan yang sedang dibuka)
-        $otherNews = $school->posts()->published()
+        $otherNews = Post::published()
+            ->whereIn('school_id', $schoolIds)
             ->where('id', '!=', $post->id)
             ->where('type', 'berita')
             ->latest('published_at')->take(5)->get();
 
-        $announcements = $school->posts()->published()
+        $announcements = Post::published()
+            ->whereIn('school_id', $schoolIds)
             ->where('id', '!=', $post->id)
             ->where('type', 'pengumuman')
             ->latest('published_at')->take(5)->get();
@@ -134,8 +162,10 @@ class SiteController extends Controller
     public function gallery(Request $request, School $school)
     {
         $category = $request->query('kategori');
+        $foundation = School::foundation();
+        $schoolIds = array_unique(array_filter([$school->id, $foundation?->id]));
 
-        $photos = $school->galleries()
+        $photos = Gallery::whereIn('school_id', $schoolIds)
             ->when(in_array($category, ['pembelajaran', 'acara', 'prestasi'], true), fn ($q) => $q->where('category', $category))
             ->latest()
             ->paginate(12)

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FormBuilderController;
 use App\Http\Controllers\Admin\MessageController;
 use App\Http\Controllers\Admin\RegistrationController;
 use App\Http\Controllers\Admin\ResourceController;
@@ -49,6 +50,11 @@ Route::middleware(['auth', EnsureRole::class.':super_admin,admin,operator'])
         Route::middleware(EnsureRole::class.':super_admin,admin')->group(function () {
             Route::get('pengaturan', [SettingsController::class, 'edit'])->name('settings');
             Route::put('pengaturan', [SettingsController::class, 'update'])->name('settings.update');
+
+            // Form builder pendaftaran PPDB per jenjang
+            Route::get('formulir-ppdb', [FormBuilderController::class, 'edit'])->name('ppdb.form-builder');
+            Route::put('formulir-ppdb', [FormBuilderController::class, 'update'])->name('ppdb.form-builder.update');
+            Route::post('formulir-ppdb/reset', [FormBuilderController::class, 'reset'])->name('ppdb.form-builder.reset');
 
             Route::get('ppdb', [RegistrationController::class, 'index'])->name('ppdb.index');
             Route::get('ppdb/export', [RegistrationController::class, 'export'])->name('ppdb.export');
