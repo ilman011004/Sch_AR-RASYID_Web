@@ -16,8 +16,11 @@
 
         <p>Catat nomor ini. Untuk melihat status pendaftaran, gunakan nomor tersebut bersama tanggal lahir calon siswa.</p>
 
-        <p>
-            <a class="btn" href="{{ route('ppdb.status', $school) }}">Cek status pendaftaran</a>
+        <p style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+            <a class="btn" href="{{ route('ppdb.print', [$school, $reg['number']]) }}" target="_blank">
+                <span>🖨️</span> Cetak / Simpan Bukti Pendaftaran
+            </a>
+            <a class="btn btn-outline" href="{{ route('ppdb.status', $school) }}">Cek status pendaftaran</a>
             <a class="btn btn-outline" href="{{ route('home', $school) }}">Kembali ke beranda</a>
         </p>
     </div>

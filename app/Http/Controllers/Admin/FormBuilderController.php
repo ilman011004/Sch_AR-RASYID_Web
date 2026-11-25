@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\School;
 use App\Support\AdminContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,33 @@ class FormBuilderController extends Controller
         return view('admin.ppdb.form-builder', [
             'school' => $school,
             'schema' => $schema,
+            // Template siap pakai untuk tombol template di builder.
+            'templates' => [
+                'parent' => [
+                    'title' => 'Data Orang Tua (Ayah, Ibu, Wali)',
+                    'desc' => 'Menambahkan bagian Data Ayah, Data Ibu, Data Wali, dan Kontak sekaligus.',
+                    'icon' => 'users',
+                    'fields' => School::parentFormFields(),
+                ],
+                'education' => [
+                    'title' => 'Riwayat Pendidikan & Prestasi',
+                    'desc' => 'Riwayat sekolah (tingkat, nama, alamat, telepon, tahun lulus) serta prestasi akademik dan non akademik.',
+                    'icon' => 'book',
+                    'fields' => School::educationFormFields(),
+                ],
+                'health' => [
+                    'title' => 'Riwayat Kesehatan',
+                    'desc' => 'Pertumbuhan jasmani (golongan darah, penglihatan, pendengaran, bicara) dan penyakit yang pernah diderita.',
+                    'icon' => 'heart',
+                    'fields' => School::healthFormFields(),
+                ],
+                'other' => [
+                    'title' => 'Lain-Lain (Ibadah & Menu Makanan)',
+                    'desc' => "Ibadah di rumah (shalat, Al-Qur'an, zikir) dan menu makanan yang disukai.",
+                    'icon' => 'home',
+                    'fields' => School::otherFormFields(),
+                ],
+            ],
         ]);
     }
 
@@ -55,7 +83,8 @@ class FormBuilderController extends Controller
                         continue;
                     }
 
-                    $type = in_array($f['type'] ?? '', ['text', 'paragraph', 'number', 'date', 'select', 'radio', 'checkbox', 'file'], true)
+                    // 'section' = judul bagian (pembatas, tanpa jawaban); 'region' = alamat bertingkat Provinsi sampai Desa.
+                    $type = in_array($f['type'] ?? '', ['text', 'paragraph', 'number', 'date', 'select', 'radio', 'checkbox', 'file', 'section', 'region'], true)
                         ? $f['type']
                         : 'text';
 
@@ -70,6 +99,13 @@ class FormBuilderController extends Controller
                         'parent_job', 'doc_birth_cert', 'doc_family_card', 'doc_photo',
                     ], true) ? $f['mapping'] : null;
 
+                    // Judul bagian tidak punya jawaban; alamat bertingkat hanya boleh terhubung ke kolom alamat.
+                    if ($type === 'section') {
+                        $mapping = null;
+                    } elseif ($type === 'region' && $mapping !== 'address') {
+                        $mapping = null;
+                    }
+
                     $options = [];
                     if (in_array($type, ['select', 'radio', 'checkbox'], true)) {
                         $rawOptions = $f['options'] ?? '';
@@ -80,14 +116,31 @@ class FormBuilderController extends Controller
                         }
                     }
 
+                    // Aturan isian (format, panjang minimal/maksimal) hanya berlaku untuk jawaban singkat (teks).
+                    $format = ($type === 'text' && in_array($f['format'] ?? '', ['nik', 'phone', 'digits', 'email'], true))
+                        ? $f['format']
+                        : '';
+                    $min = ($type === 'text' && is_numeric($f['min'] ?? null) && (int) $f['min'] > 0)
+                        ? min(255, (int) $f['min'])
+                        : null;
+                    $max = ($type === 'text' && is_numeric($f['max'] ?? null) && (int) $f['max'] > 0)
+                        ? min(255, (int) $f['max'])
+                        : null;
+                    if ($min !== null && $max !== null && $min > $max) {
+                        [$min, $max] = [$max, $min];
+                    }
+
                     $fields[] = [
                         'id' => $id,
                         'mapping' => $mapping,
                         'label' => $label,
                         'type' => $type,
-                        'required' => ! empty($f['required']),
+                        'required' => $type !== 'section' && ! empty($f['required']),
                         'help' => trim($f['help'] ?? ''),
                         'options' => $options,
+                        'format' => $format,
+                        'min' => $min,
+                        'max' => $max,
                     ];
                 }
             }

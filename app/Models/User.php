@@ -34,6 +34,11 @@ class User extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['super_admin', 'admin', 'operator'], true);
+    }
+
     /** Akun pendaftar PPDB (orang tua / wali). Bukan akun panel admin. */
     public function isParent(): bool
     {

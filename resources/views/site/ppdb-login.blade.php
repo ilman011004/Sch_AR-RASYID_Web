@@ -60,10 +60,11 @@
                         @error('password')<span class="err">{{ $message }}</span>@enderror
                     </div>
 
-                    <div class="auth-row">
+                    <div class="auth-row" style="display:flex;justify-content:space-between;align-items:center">
                         <label class="auth-check">
                             <input type="checkbox" name="remember" value="1" @checked(old('remember'))> Ingat saya
                         </label>
+                        <a href="{{ route('ppdb.password.request', $school) }}" style="font-size:.85rem;color:var(--primary);text-decoration:none;font-weight:600">Lupa kata sandi?</a>
                     </div>
 
                     <button class="btn auth-submit" type="submit">Masuk</button>

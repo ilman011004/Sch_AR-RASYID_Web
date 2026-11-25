@@ -5,8 +5,22 @@
 @endphp
 
 <div class="result ppdb-track">
-    <h3>{{ $r->student_name }}</h3>
-    <p class="muted small">{{ $r->reg_number }}</p>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+        <div>
+            <h3 style="margin:0">{{ $r->student_name }}</h3>
+            <p class="muted small" style="margin:0">{{ $r->reg_number }}</p>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+            <a class="btn btn-sm btn-outline" href="{{ route('ppdb.print', [$r->school, $r->reg_number]) }}" target="_blank" style="padding:.4rem .9rem;font-size:.82rem;font-weight:700">
+                <span>📄</span> Bukti Pendaftaran
+            </a>
+            @if ($stage >= 2)
+                <a class="btn btn-sm" href="{{ route('ppdb.card', [$r->school, $r->reg_number]) }}" target="_blank" style="padding:.4rem .9rem;font-size:.82rem;font-weight:700;background:#0f766e;border-color:#0f766e">
+                    <span>📇</span> Cetak Kartu Ujian Seleksi
+                </a>
+            @endif
+        </div>
+    </div>
 
     <ol class="stepper">
         @foreach (\App\Models\Registration::STAGES as $n => $label)

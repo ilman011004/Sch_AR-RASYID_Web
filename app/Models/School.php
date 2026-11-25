@@ -120,109 +120,171 @@ class School extends Model
             'pages' => [
                 [
                     'id' => 'page_1',
-                    'title' => 'Biodata Calon Siswa & Orang Tua',
-                    'subtitle' => 'Silakan isi data lengkap calon murid dan orang tua / wali',
+                    'title' => 'Data Calon Siswa',
+                    'subtitle' => 'Isi data diri calon siswa sesuai akta kelahiran',
                     'fields' => [
-                        [
-                            'id' => 'f_student_name',
-                            'mapping' => 'student_name',
-                            'label' => 'Nama Lengkap Calon Siswa',
-                            'type' => 'text',
-                            'required' => true,
-                            'help' => 'Nama sesuai akta kelahiran',
-                            'options' => [],
-                        ],
-                        [
-                            'id' => 'f_gender',
-                            'mapping' => 'gender',
-                            'label' => 'Jenis Kelamin',
-                            'type' => 'radio',
-                            'required' => true,
-                            'help' => '',
-                            'options' => ['Laki-laki', 'Perempuan'],
-                        ],
-                        [
-                            'id' => 'f_birth_place',
-                            'mapping' => 'birth_place',
-                            'label' => 'Tempat Lahir',
-                            'type' => 'text',
-                            'required' => true,
-                            'help' => '',
-                            'options' => [],
-                        ],
-                        [
-                            'id' => 'f_birth_date',
-                            'mapping' => 'birth_date',
-                            'label' => 'Tanggal Lahir',
-                            'type' => 'date',
-                            'required' => true,
-                            'help' => '',
-                            'options' => [],
-                        ],
-                        [
-                            'id' => 'f_address',
-                            'mapping' => 'address',
-                            'label' => 'Alamat Tempat Tinggal',
-                            'type' => 'paragraph',
-                            'required' => true,
-                            'help' => 'Alamat lengkap beserta RT/RW atau nama jalan',
-                            'options' => [],
-                        ],
-                        [
-                            'id' => 'f_parent_name',
-                            'mapping' => 'parent_name',
-                            'label' => 'Nama Orang Tua / Wali',
-                            'type' => 'text',
-                            'required' => true,
-                            'help' => '',
-                            'options' => [],
-                        ],
-                        [
-                            'id' => 'f_parent_phone',
-                            'mapping' => 'parent_phone',
-                            'label' => 'Nomor HP / WhatsApp Aktif',
-                            'type' => 'text',
-                            'required' => true,
-                            'help' => 'Nomor yang dapat dihubungi untuk informasi PPDB',
-                            'options' => [],
-                        ],
+                        self::formField('f_student_name', 'student_name', 'Nama Lengkap Calon Siswa', 'text', true, 'Nama sesuai akta kelahiran'),
+                        self::formField('f_gender', 'gender', 'Jenis Kelamin', 'radio', true, '', ['Laki-laki', 'Perempuan']),
+                        self::formField('f_birth_place', 'birth_place', 'Tempat Lahir', 'text', true),
+                        self::formField('f_birth_date', 'birth_date', 'Tanggal Lahir', 'date', true),
+                        self::formField('f_address', 'address', 'Alamat Tempat Tinggal', 'region', true, 'Pilih Provinsi sampai Desa/Kelurahan, lalu isi nama jalan, RT/RW'),
                     ],
                 ],
                 [
                     'id' => 'page_2',
+                    'title' => 'Identitas Orang Tua / Wali',
+                    'subtitle' => 'Isi data ayah dan ibu. Data wali hanya diisi bila calon siswa tinggal bersama wali',
+                    'fields' => self::parentFormFields(),
+                ],
+                [
+                    'id' => 'page_3',
+                    'title' => 'Riwayat Pendidikan & Prestasi',
+                    'subtitle' => 'Isi sesuai riwayat calon siswa. Kosongkan bagian yang tidak ada',
+                    'fields' => self::educationFormFields(),
+                ],
+                [
+                    'id' => 'page_4',
+                    'title' => 'Riwayat Kesehatan',
+                    'subtitle' => 'Kondisi kesehatan calon siswa untuk membantu sekolah memberi layanan terbaik',
+                    'fields' => self::healthFormFields(),
+                ],
+                [
+                    'id' => 'page_5',
+                    'title' => 'Lain-Lain',
+                    'subtitle' => 'Kebiasaan ibadah dan makanan calon siswa di rumah',
+                    'fields' => self::otherFormFields(),
+                ],
+                [
+                    'id' => 'page_6',
                     'title' => 'Unggah Berkas Dokumen',
                     'subtitle' => 'Unggah dokumen dalam format gambar (JPG/PNG) atau PDF (maks. 2 MB)',
                     'fields' => [
-                        [
-                            'id' => 'f_doc_birth_cert',
-                            'mapping' => 'doc_birth_cert',
-                            'label' => 'Akta Kelahiran',
-                            'type' => 'file',
-                            'required' => true,
-                            'help' => 'File JPG, PNG, atau PDF',
-                            'options' => [],
-                        ],
-                        [
-                            'id' => 'f_doc_family_card',
-                            'mapping' => 'doc_family_card',
-                            'label' => 'Kartu Keluarga',
-                            'type' => 'file',
-                            'required' => true,
-                            'help' => 'File JPG, PNG, atau PDF',
-                            'options' => [],
-                        ],
-                        [
-                            'id' => 'f_doc_photo',
-                            'mapping' => 'doc_photo',
-                            'label' => 'Pas Foto Calon Siswa (3x4 atau 4x6)',
-                            'type' => 'file',
-                            'required' => true,
-                            'help' => 'Foto berwarna terbaru calon siswa',
-                            'options' => [],
-                        ],
+                        self::formField('f_doc_birth_cert', 'doc_birth_cert', 'Akta Kelahiran', 'file', true, 'File JPG, PNG, atau PDF'),
+                        self::formField('f_doc_family_card', 'doc_family_card', 'Kartu Keluarga', 'file', true, 'File JPG, PNG, atau PDF'),
+                        self::formField('f_doc_photo', 'doc_photo', 'Pas Foto Calon Siswa (3x4 atau 4x6)', 'file', true, 'Foto berwarna terbaru calon siswa'),
                     ],
                 ],
             ],
+        ];
+    }
+
+    /** Satu pertanyaan formulir dalam bentuk array yang sesuai dengan skema. */
+    private static function formField(string $id, ?string $mapping, string $label, string $type, bool $required = false, string $help = '', array $options = []): array
+    {
+        return compact('id', 'mapping', 'label', 'type', 'required', 'help', 'options');
+    }
+
+    /** Judul bagian (pembatas, tidak menghasilkan jawaban). */
+    private static function formSection(string $id, string $title, string $help = ''): array
+    {
+        return self::formField($id, null, $title, 'section', false, $help);
+    }
+
+    /**
+     * Template "Data Orang Tua / Wali": Ayah, Ibu, Wali (opsional), dan kontak, semuanya dalam satu halaman.
+     * Dipakai oleh formulir default dan oleh tombol template di pengaturan formulir.
+     */
+    public static function parentFormFields(): array
+    {
+        $education = ['Tidak sekolah', 'SD / sederajat', 'SMP / sederajat', 'SMA / sederajat', 'D1 - D3', 'S1 / D4', 'S2', 'S3'];
+        $income = ['Kurang dari Rp 1.000.000', 'Rp 1.000.000 - Rp 2.000.000', 'Rp 2.000.000 - Rp 5.000.000', 'Rp 5.000.000 - Rp 10.000.000', 'Lebih dari Rp 10.000.000'];
+
+        return [
+            self::formSection('f_sec_father', 'Data Ayah', 'Isi sesuai Kartu Keluarga'),
+            self::formField('f_father_name', 'parent_name', 'Nama Lengkap', 'text', true),
+            self::formField('f_father_nik', null, 'NIK', 'number', false, '16 digit sesuai KTP'),
+            self::formField('f_father_job', 'parent_job', 'Pekerjaan', 'text'),
+            self::formField('f_father_edu', null, 'Pendidikan Terakhir', 'select', false, '', $education),
+            self::formField('f_father_income', null, 'Penghasilan per Bulan', 'select', false, '', $income),
+
+            self::formSection('f_sec_mother', 'Data Ibu', 'Isi sesuai Kartu Keluarga'),
+            self::formField('f_mother_name', null, 'Nama Lengkap', 'text', true),
+            self::formField('f_mother_nik', null, 'NIK', 'number', false, '16 digit sesuai KTP'),
+            self::formField('f_mother_job', null, 'Pekerjaan', 'text'),
+            self::formField('f_mother_edu', null, 'Pendidikan Terakhir', 'select', false, '', $education),
+            self::formField('f_mother_income', null, 'Penghasilan per Bulan', 'select', false, '', $income),
+
+            self::formSection('f_sec_guardian', 'Data Wali (Opsional)', 'Isi hanya jika calon siswa tinggal bersama wali'),
+            self::formField('f_guardian_name', null, 'Nama Lengkap Wali', 'text'),
+            self::formField('f_guardian_relation', null, 'Hubungan dengan Calon Siswa', 'text', false, 'Contoh: kakek, paman, bibi'),
+            self::formField('f_guardian_job', null, 'Pekerjaan Wali', 'text'),
+
+            self::formSection('f_sec_contact', 'Kontak yang Dapat Dihubungi'),
+            self::formField('f_parent_phone', 'parent_phone', 'Nomor HP / WhatsApp Aktif', 'text', true, 'Nomor yang dapat dihubungi untuk informasi PPDB'),
+            self::formField('f_parent_email', 'parent_email', 'Email', 'text', false, 'Opsional'),
+        ];
+    }
+
+    /** Template "Riwayat Pendidikan" + "Prestasi Akademik dan Non Akademik". */
+    public static function educationFormFields(): array
+    {
+        $levels = ['PAUD / TK / RA', 'SD / MI', 'SMP / MTs', 'SMA / MA / SMK', 'Lainnya'];
+        $f = [];
+
+        foreach ([1, 2, 3] as $i) {
+            $f[] = self::formSection("f_edu{$i}_sec", "Riwayat Pendidikan {$i}", $i === 1 ? 'Isi jenjang sekolah sebelumnya. Kosongkan jika tidak ada' : '');
+            $f[] = self::formField("f_edu{$i}_level", null, 'Tingkat', 'select', false, '', $levels);
+            $f[] = self::formField("f_edu{$i}_school", null, 'Nama Sekolah', 'text');
+            $f[] = self::formField("f_edu{$i}_address", null, 'Alamat Sekolah', 'text');
+            $f[] = self::formField("f_edu{$i}_phone", null, 'Telepon Sekolah', 'text');
+            $f[] = self::formField("f_edu{$i}_year", null, 'Tahun Lulus', 'number', false, 'Contoh: 2024');
+        }
+
+        foreach (['acad' => 'Prestasi Akademik', 'nonacad' => 'Prestasi Non Akademik'] as $key => $title) {
+            foreach ([1, 2] as $i) {
+                $f[] = self::formSection("f_{$key}{$i}_sec", "{$title} {$i}", $i === 1 ? 'Kosongkan jika belum ada prestasi' : '');
+                $f[] = self::formField("f_{$key}{$i}_name", null, 'Prestasi yang Diraih', 'text');
+                $f[] = self::formField("f_{$key}{$i}_class", null, 'Kelas', 'text');
+                $f[] = self::formField("f_{$key}{$i}_year", null, 'Tahun', 'number');
+                $f[] = self::formField("f_{$key}{$i}_note", null, 'Keterangan', 'text');
+            }
+        }
+
+        return $f;
+    }
+
+    /** Template "Riwayat Kesehatan": pertumbuhan jasmani + penyakit yang pernah diderita. */
+    public static function healthFormFields(): array
+    {
+        $normal = fn (string $other) => ['Normal', $other];
+
+        $f = [
+            self::formSection('f_sec_body', 'Pertumbuhan Jasmani dan Kesehatan', 'Keadaan jasmani calon peserta didik'),
+            self::formField('f_blood', null, 'Golongan Darah', 'select', false, '', ['A', 'B', 'AB', 'O', 'Belum diketahui']),
+            self::formField('f_height', null, 'Tinggi Badan (cm)', 'number'),
+            self::formField('f_weight', null, 'Berat Badan (kg)', 'number'),
+            self::formField('f_sight', null, 'Penglihatan', 'select', false, '', ['Normal', 'Berkacamata', 'Gangguan penglihatan lainnya']),
+            self::formField('f_hearing', null, 'Pendengaran', 'select', false, '', $normal('Ada gangguan pendengaran')),
+            self::formField('f_speech', null, 'Pembicaraan', 'select', false, '', $normal('Ada gangguan bicara')),
+            self::formField('f_body_other', null, 'Keadaan Jasmani Lainnya', 'paragraph', false, 'Contoh: alergi, cacat bawaan, kebutuhan khusus'),
+        ];
+
+        foreach ([1, 2, 3] as $i) {
+            $f[] = self::formSection("f_ill{$i}_sec", "Penyakit yang Pernah Diderita {$i}", $i === 1 ? 'Kosongkan jika tidak pernah menderita penyakit serius' : '');
+            $f[] = self::formField("f_ill{$i}_name", null, 'Nama Penyakit', 'text');
+            $f[] = self::formField("f_ill{$i}_year", null, 'Tahun', 'number');
+            $f[] = self::formField("f_ill{$i}_long", null, 'Lamanya', 'text', false, 'Contoh: 2 minggu');
+            $f[] = self::formField("f_ill{$i}_note", null, 'Keterangan', 'text');
+        }
+
+        return $f;
+    }
+
+    /** Template "Lain-Lain": ibadah di rumah + menu makanan. */
+    public static function otherFormFields(): array
+    {
+        $freq = ['Setiap hari', 'Kadang-kadang', 'Jarang'];
+
+        return [
+            self::formSection('f_sec_worship', 'Ibadah Peserta Didik di Rumah'),
+            self::formField('f_worship_salat', null, 'Shalat', 'radio', false, '', ['Lengkap 5 waktu', 'Tidak lengkap']),
+            self::formField('f_worship_quran', null, "Membaca Al-Qur'an / Iqro", 'radio', false, '', $freq),
+            self::formField('f_worship_zikir', null, 'Zikir Sesudah Shalat', 'radio', false, '', $freq),
+
+            self::formSection('f_sec_food', 'Menu Makanan'),
+            self::formField('f_food_like', null, 'Menu Makanan yang Paling Disukai', 'text'),
+            self::formField('f_food_dislike', null, 'Menu Makanan yang Tidak Disukai', 'text'),
+            self::formField('f_food_veg', null, 'Sayur', 'radio', false, '', ['Suka', 'Tidak suka']),
         ];
     }
 
@@ -279,20 +341,21 @@ class School extends Model
         return $this->structure_image ? asset('storage/'.$this->structure_image) : null;
     }
 
-public function aboutPhotos(): HasMany
-{
-    return $this->hasMany(AboutPhoto::class)->orderBy('sort')->orderBy('id');
-}
+    public function aboutPhotos(): HasMany
+    {
+        return $this->hasMany(AboutPhoto::class)->orderBy('sort')->orderBy('id');
+    }
 
-public function facilities(): HasMany
-{
-    return $this->hasMany(Facility::class)->orderBy('sort');
-}
+    public function facilities(): HasMany
+    {
+        return $this->hasMany(Facility::class)->orderBy('sort');
+    }
 
-    public function milestones()
-{
-    return $this->hasMany(Milestone::class);
-}
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(Milestone::class);
+    }
+
     /** Poster PPDB yang diunggah admin / super admin. */
     public function ppdbPosterUrl(): ?string
     {

@@ -51,6 +51,82 @@ class Registration extends Model
         return $this->belongsTo(School::class);
     }
 
+    /** URL atau path pas foto siswa jika diunggah */
+    public function photoPath(): ?string
+    {
+        if ($this->doc_photo) {
+            return $this->doc_photo;
+        }
+
+        if (! empty($this->custom_fields) && is_array($this->custom_fields)) {
+            foreach ($this->custom_fields as $cf) {
+                if (($cf['type'] ?? '') === 'file' && filled($cf['value'] ?? null)) {
+                    $lbl = mb_strtolower($cf['label'] ?? '');
+                    if (str_contains($lbl, 'foto') || str_contains($lbl, 'photo')) {
+                        return $cf['value'];
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /** Asal sekolah pendaftar (dari kolom atau custom_fields / template riwayat pendidikan) */
+    public function getPreviousSchool(): ?string
+    {
+        if (filled($this->previous_school) && $this->previous_school !== '-') {
+            return $this->previous_school;
+        }
+
+        if (! empty($this->custom_fields) && is_array($this->custom_fields)) {
+            // 1. Cari yang labelnya "Asal Sekolah" atau "Nama Sekolah" di bawah bagian Riwayat Pendidikan
+            foreach ($this->custom_fields as $cf) {
+                $lbl = mb_strtolower(trim($cf['label'] ?? ''));
+                $sec = mb_strtolower(trim($cf['section'] ?? ''));
+                $val = $cf['value'] ?? null;
+
+                if (filled($val) && (str_contains($lbl, 'asal sekolah') || (str_contains($lbl, 'nama sekolah') && str_contains($sec, 'pendidikan')))) {
+                    return is_array($val) ? implode(', ', $val) : (string) $val;
+                }
+            }
+
+            // 2. Fallback cari label yang mengandung "sekolah"
+            foreach ($this->custom_fields as $cf) {
+                $lbl = mb_strtolower(trim($cf['label'] ?? ''));
+                $val = $cf['value'] ?? null;
+                if (filled($val) && str_contains($lbl, 'nama sekolah') && ! str_contains($lbl, 'asal')) {
+                    return is_array($val) ? implode(', ', $val) : (string) $val;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /** NIK siswa (dari kolom atau custom_fields) */
+    public function getNik(): ?string
+    {
+        if (filled($this->nik) && $this->nik !== '-') {
+            return $this->nik;
+        }
+
+        if (! empty($this->custom_fields) && is_array($this->custom_fields)) {
+            foreach ($this->custom_fields as $cf) {
+                $lbl = mb_strtolower(trim($cf['label'] ?? ''));
+                $sec = mb_strtolower(trim($cf['section'] ?? ''));
+                $val = $cf['value'] ?? null;
+
+                // NIK siswa (bukan NIK ayah / ibu)
+                if (filled($val) && preg_match('/\bnik\b/u', $lbl) && ! str_contains($lbl, 'ayah') && ! str_contains($lbl, 'ibu') && ! str_contains($sec, 'ayah') && ! str_contains($sec, 'ibu')) {
+                    return is_array($val) ? implode('', $val) : (string) $val;
+                }
+            }
+        }
+
+        return null;
+    }
+
     /** Akun orang tua pemilik pendaftaran. */
     public function user(): BelongsTo
     {

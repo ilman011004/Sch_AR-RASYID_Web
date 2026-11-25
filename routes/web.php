@@ -160,12 +160,20 @@ $schoolRoutes = function () {
     Route::get('/ppdb', [PpdbController::class, 'index'])->name('ppdb');
     Route::get('/ppdb/cek-status', [PpdbController::class, 'status'])->name('ppdb.status');
     Route::post('/ppdb/cek-status', [PpdbController::class, 'check'])->middleware('throttle:10,1')->name('ppdb.check');
+    Route::get('/ppdb/bukti/{registration:reg_number}', [PpdbController::class, 'printProof'])->name('ppdb.print');
+    Route::get('/ppdb/kartu-ujian/{registration:reg_number}', [PpdbController::class, 'printExamCard'])->name('ppdb.card');
 
     // --- PPDB: akun pendaftar (orang tua / wali) ---
     Route::get('/ppdb/masuk', [PpdbAuthController::class, 'showLogin'])->name('ppdb.login');
     Route::post('/ppdb/masuk', [PpdbAuthController::class, 'login'])->middleware('throttle:6,1')->name('ppdb.login.submit');
     Route::get('/ppdb/daftar-akun', [PpdbAuthController::class, 'showRegister'])->name('ppdb.register');
     Route::post('/ppdb/daftar-akun', [PpdbAuthController::class, 'register'])->middleware('throttle:5,10')->name('ppdb.register.submit');
+
+    // Lupa kata sandi akun pendaftar (orang tua / wali)
+    Route::get('/ppdb/lupa-password', [PpdbAuthController::class, 'showForgotPassword'])->name('ppdb.password.request');
+    Route::post('/ppdb/lupa-password', [PpdbAuthController::class, 'sendResetOtp'])->middleware('throttle:5,10')->name('ppdb.password.email');
+    Route::get('/ppdb/reset-password', [PpdbAuthController::class, 'showResetPassword'])->name('ppdb.password.reset');
+    Route::post('/ppdb/reset-password', [PpdbAuthController::class, 'resetPassword'])->middleware('throttle:10,10')->name('ppdb.password.update');
 
     // Verifikasi email dengan kode OTP (akun dibuat setelah kode benar)
     Route::get('/ppdb/verifikasi', [PpdbAuthController::class, 'showVerify'])->name('ppdb.verify');

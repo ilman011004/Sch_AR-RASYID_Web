@@ -39,7 +39,102 @@ class PpdbAuthController extends Controller
 
         $request->session()->regenerate();
 
+        // Jika orang tua sudah pernah mendaftar di sekolah ini, arahkan langsung ke halaman status pendaftaran agar tidak bingung.
+        $hasRegistered = \App\Models\Registration::where('school_id', $school->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($hasRegistered) {
+            return redirect()->intended(route('ppdb.status', $school));
+        }
+
         return redirect()->intended(route('ppdb.form', $school));
+    }
+
+    public function showForgotPassword(School $school)
+    {
+        if ($redirect = $this->redirectIfLoggedIn($school)) {
+            return $redirect;
+        }
+
+        return view('site.ppdb-forgot-password', ['school' => $school]);
+    }
+
+    public function sendResetOtp(Request $request, School $school)
+    {
+        $email = Otp::normalize((string) $request->input('email'));
+        $request->merge(['email' => $email]);
+
+        $request->validate([
+            'email' => 'required|email',
+        ], [], ['email' => 'email']);
+
+        // Pastikan akun terdaftar dengan role parent
+        $user = User::where('email', $email)->where('role', 'parent')->first();
+
+        if (! $user) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['email' => 'Email ini belum terdaftar sebagai akun orang tua / wali.']);
+        }
+
+        $result = Otp::send($email, 'reset_password', $school->name);
+
+        session(['ppdb_reset_email' => $email]);
+
+        return redirect()->route('ppdb.password.reset', $school)->with(
+            'status',
+            $result === 'cooldown'
+                ? 'Kode sebelumnya masih berlaku. Cek email Anda (juga folder spam).'
+                : 'Kode verifikasi reset kata sandi sudah dikirim ke '.$email.'. Cek juga folder spam.'
+        );
+    }
+
+    public function showResetPassword(Request $request, School $school)
+    {
+        if ($redirect = $this->redirectIfLoggedIn($school)) {
+            return $redirect;
+        }
+
+        $email = session('ppdb_reset_email');
+        if (! $email) {
+            return redirect()->route('ppdb.password.request', $school);
+        }
+
+        return view('site.ppdb-reset-password', ['school' => $school, 'email' => $email]);
+    }
+
+    public function resetPassword(Request $request, School $school)
+    {
+        $email = session('ppdb_reset_email');
+        if (! $email) {
+            return redirect()->route('ppdb.password.request', $school)
+                ->with('error', 'Sesi reset kata sandi sudah habis. Silakan ulangi.');
+        }
+
+        $data = $request->validate([
+            'code' => 'required|digits:6',
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ], [], [
+            'code' => 'kode verifikasi',
+            'password' => 'kata sandi baru',
+        ]);
+
+        if (! Otp::verify($email, 'reset_password', $data['code'])) {
+            return back()->withErrors(['code' => 'Kode salah atau kedaluwarsa.']);
+        }
+
+        $user = User::where('email', $email)->where('role', 'parent')->first();
+        if ($user) {
+            $user->update([
+                'password' => Hash::make($data['password']),
+            ]);
+        }
+
+        session()->forget('ppdb_reset_email');
+
+        return redirect()->route('ppdb.login', $school)
+            ->withInput(['email' => $email])
+            ->with('status', 'Kata sandi berhasil diperbarui! Silakan masuk dengan kata sandi baru Anda.');
     }
 
     public function showRegister(School $school)

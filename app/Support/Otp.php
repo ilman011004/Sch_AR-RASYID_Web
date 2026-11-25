@@ -55,13 +55,17 @@ class Otp
             'updated_at' => now(),
         ]);
 
-        $label = $purpose === 'login' ? 'Masuk' : 'Pendaftaran';
+        $label = match ($purpose) {
+            'login' => 'Masuk',
+            'reset_password' => 'Reset Kata Sandi',
+            default => 'Pendaftaran',
+        };
 
         try {
             Mail::raw(
                 "Kode verifikasi {$label} {$schoolName}: {$code}\n\n"
                 .'Berlaku '.self::TTL_MINUTES." menit. Jangan bagikan kode ini kepada siapa pun.\n"
-                .'Abaikan email ini jika Anda tidak memintanya.',
+                .'Abaikan email ini jika Anda tidak meminta reset kata sandi.',
                 fn ($m) => $m->to($email)->subject("Kode Verifikasi {$label} — {$schoolName}")
             );
         } catch (\Throwable $e) {
